@@ -1,0 +1,7 @@
+100
+Anatoliy
+-1
+5.25
+Cat
+Dog
+Apple

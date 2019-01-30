@@ -47,3 +47,9 @@ if md5_hash != original_hash:
     print('Original md5 hash is: {}'.format(original_hash))
     print('Current md5 hash is: {}'.format(md5_hash))
     print('File changed {}'.format(fname))
+
+
+data = ('100', 'Anatoliy', '-1', '5.25', 'Cat', 'Dog', 'Apple')
+data_fname = 'data.txt'
+with open(data_fname, 'w') as f:
+    f.write('\n'.join(data)) #  list or tuple
