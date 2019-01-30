@@ -99,7 +99,7 @@ write_valid_data(valid_digits_fname, valid_digits_data)
 write_valid_data(valid_str_fname, valid_str_data)
 
 
-file_template = '{fname}\n{lname}\n{salary}{currency}\n{bonus}\n'
+human_template = '{fname}\n{lname}\n{salary}{currency}\n{bonus}\n'
 people_db_fname = 'people.txt'
 
 
@@ -113,4 +113,11 @@ people = (
 
 with open(people_db_fname, 'w') as f:
     for human in people:
-        pass
+        # fname = human[0]
+        # lname = human[1]
+        fname, lname, salary, bonus, currency = human
+        result = human_template.format(
+            fname=fname, lname=lname, salary=salary,
+            bonus=bonus, currency=currency,
+        )
+        print(result)
