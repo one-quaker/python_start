@@ -100,6 +100,7 @@ write_valid_data(valid_str_fname, valid_str_data)
 
 
 human_template = '{fname}\n{lname}\n{salary}{currency}\n{bonus}%'
+pet_template = 'Pet name: {pet}'
 people_db_fname = 'people.txt'
 
 
@@ -116,8 +117,16 @@ with open(people_db_fname, 'w') as f:
         # fname = human[0]
         # lname = human[1]
         fname, lname, salary, bonus, currency = human
-        result = human_template.format(
+        data = dict(
             fname=fname, lname=lname, salary=salary,
-            bonus=bonus, currency=currency,
+            bonus=bonus, currency=currency, pet='Unknown',
         )
+        # data['fname']
+        result = human_template.format(**data)
+        result2 = pet_template.format(**data)
+        print(result2)
         f.write('{}\n---------\n'.format(result))
+
+
+# разобраться со словарями dict(), методы keys(), items(), values(), update()
+# удалить ключ, записать значение по ключу
