@@ -13,8 +13,16 @@ else:
     print('Unknown operating system')
 
 
+current_dir = os.getcwd()
+
+
 for i in range(20):
-    current_dir = os.getcwd()
     newdir_path = os.path.join(current_dir, 'test_{0:02d}'.format(i))
     # print(current_dir, newdir_path)
-    os.mkdir(newdir_path)
+    if not os.path.isdir(newdir_path):
+        os.mkdir(newdir_path)
+
+
+for path in os.listdir(current_dir):
+    if os.path.isdir(path) and 'test_' in path:
+        print(path)
