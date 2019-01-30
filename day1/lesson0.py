@@ -97,3 +97,20 @@ def write_valid_data(fpath, data, debug=True):
 
 write_valid_data(valid_digits_fname, valid_digits_data)
 write_valid_data(valid_str_fname, valid_str_data)
+
+
+file_template = '{fname}\n{lname}\n{salary}{currency}\n{bonus}\n'
+people_db_fname = 'people.txt'
+
+
+people = (
+    ('Anatoliy', 'Kurinny', 3000, 15, 'USD'),
+    ('Vasya', 'Pupkin', 200, 0, 'USD'),
+    ('Dart', 'Maul', 100500, 15, 'USD'),
+    ('Den', 'Ziko', 1000, 10, 'BTC'),
+)
+
+
+with open(people_db_fname, 'w') as f:
+    for human in people:
+        pass
