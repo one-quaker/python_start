@@ -18,12 +18,13 @@ else:
 current_dir = os.getcwd()
 
 
-for i in range(5):
-    newdir_path = os.path.join(current_dir, 'test_{0:02d}'.format(i))
-    # print(current_dir, newdir_path)
-    if not os.path.isdir(newdir_path):
-        print('creating {}'.format(newdir_path))
-        os.mkdir(newdir_path)
+def make_dirs():
+    for i in range(5):
+        newdir_path = os.path.join(current_dir, 'test_{0:02d}'.format(i))
+        # print(current_dir, newdir_path)
+        if not os.path.isdir(newdir_path):
+            print('creating {}'.format(newdir_path))
+            os.mkdir(newdir_path)
 
 
 time.sleep(0.1)
@@ -42,6 +43,7 @@ with open(fname, 'rb') as f:
 
 original_hash = 'f59332e0c13065625a05219813ab5742'
 if md5_hash != original_hash:
+    make_dirs()
     print('Original md5 hash is: {}'.format(original_hash))
     print('Current md5 hash is: {}'.format(md5_hash))
     print('File changed {}'.format(fname))
