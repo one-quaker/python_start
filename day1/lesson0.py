@@ -14,7 +14,7 @@ else:
 
 
 for i in range(10):
-    current_dir = os.getcwwd()
+    current_dir = os.getcwd()
     newdir_path = os.path.join(current_dir, 'test_{0}'.format(i))
     print(current_dir, newdir_path)
     # os.mkdir(newdir_path)
