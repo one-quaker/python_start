@@ -50,6 +50,21 @@ if md5_hash != original_hash:
 
 
 data = ('100', 'Anatoliy', '-1', '5.25', 'Cat', 'Dog', 'Apple')
+validated_digits_data = []
 data_fname = 'data.txt'
 with open(data_fname, 'w') as f:
     f.write('\n'.join(data)) #  list or tuple
+
+
+with open(data_fname, 'r') as f:
+    for line in f.readlines():
+        line = line.rstrip()
+        validated_line = None
+        try:
+            validated_line = float(line)
+            validated_digits_data.append(validated_line)
+        except ValueError:
+            print('Fail in line: {}'.format(line))
+            print('We need integer')
+
+print(validated_digits_data)
