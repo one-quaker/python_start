@@ -36,9 +36,9 @@ for path in os.listdir(current_dir):
 
 
 fname = 'lesson0.py'
-f = open(fname, 'rb')
-md5_hash = hashlib.md5(f.read()).hexdigest()
-f.close()
+with open(fname, 'rb') as f:
+    md5_hash = hashlib.md5(f.read()).hexdigest()
+
 
 original_hash = 'f59332e0c13065625a05219813ab5742'
 if md5_hash != original_hash:
