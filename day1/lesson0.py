@@ -49,7 +49,11 @@ if md5_hash != original_hash:
     print('File changed {}'.format(fname))
 
 
-data = ('100', 'Anatoliy', '-1', '5.25', 'Cat', 'Dog', 'Apple')
+data = (
+    '100', 'Anatoliy', '-1', '5.25', 'Cat', 'Dog', 'Apple',
+    'Raspberry', 'Orange', '7787', '0', '2348.23432423'
+)
+
 
 valid_digits_data = []
 valid_str_data = []
@@ -66,11 +70,30 @@ with open(data_fname, 'r') as f:
     for line in f.readlines():
         line = line.rstrip() #  remove new line symbol
         validated_line = None
+
         try:
             validated_line = float(line)
             valid_digits_data.append(validated_line)
         except ValueError:
-            print('Fail in line: {}'.format(line))
-            print('We need digit!!!')
+            print('String detected in line: {}'.format(line))
+            valid_str_data.append(line)
 
-print(valid_digits_data)
+
+def convert_to_str(data):
+    # d = []
+    # for i in data:
+    #     d.append(str(i))
+    # return d
+    return [str(x) for x in data]
+
+
+def write_valid_data(fpath, data, debug=True):
+    data = convert_to_str(data)
+    if debug:
+        print(data)
+    with open(fpath, 'w') as f:
+        f.write('\n'.join(data)) #  list or tuple
+
+
+write_valid_data(valid_digits_fname, valid_digits_data)
+write_valid_data(valid_str_fname, valid_str_data)

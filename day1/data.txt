@@ -5,3 +5,8 @@ Anatoliy
 Cat
 Dog
 Apple
+Raspberry
+Orange
+7787
+0
+2348.23432423
