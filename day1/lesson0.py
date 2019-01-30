@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import hashlib
 
 
 # print(os.listdir())
@@ -25,10 +26,17 @@ for i in range(5):
         os.mkdir(newdir_path)
 
 
-time.sleep(3)
+time.sleep(0.1)
 
 
 for path in os.listdir(current_dir):
     if os.path.isdir(path) and 'test_' in path:
         print('removing {}'.format(path))
         os.rmdir(path)
+
+
+f = open('lesson0.py', 'rb')
+md5_hash = hashlib.md5(f.read()).hexdigest()
+f.close()
+
+print(md5_hash)
