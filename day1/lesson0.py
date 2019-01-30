@@ -35,8 +35,13 @@ for path in os.listdir(current_dir):
         os.rmdir(path)
 
 
-f = open('lesson0.py', 'rb')
+fname = 'lesson0.py'
+f = open(fname, 'rb')
 md5_hash = hashlib.md5(f.read()).hexdigest()
 f.close()
 
-print(md5_hash)
+original_hash = 'f59332e0c13065625a05219813ab5742'
+if md5_hash != original_hash:
+    print('Original md5 hash is: {}'.format(original_hash))
+    print('Current md5 hash is: {}'.format(md5_hash))
+    print('File changed {}'.format(fname))
