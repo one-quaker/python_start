@@ -3,10 +3,11 @@ import time
 import os
 import sys
 import argparse
+import re
 import urllib
 import urllib.request
+import random
 from pprint import pprint
-# import requests
 
 
 LAST_MSG_FN = 'last_msg.json'
@@ -16,8 +17,25 @@ CONF_FP = os.path.join(os.getcwd(), CONF_FN)
 
 
 parser = argparse.ArgumentParser(description='Telegram bot')
+parser.add_argument('--to-stdout', action='store_true', default=False)
 parser.add_argument('--debug', action='store_true', default=False)
 ARG = parser.parse_args()
+
+
+CMD_HELP   = 'help'
+CMD_INFO   = 'info'
+CMD_HI     = 'hi'
+CMD_HELLO  = 'hello'
+CMD_RANDOM = 'random'
+CMD_REG    = 'reg'
+
+CMD_LIST = (
+    CMD_HELP,
+    CMD_HI,
+    CMD_INFO,
+    CMD_RANDOM,
+    CMD_REG,
+)
 
 
 def get_log(debug):
@@ -68,96 +86,145 @@ def request_url(url):
     from socket import timeout
 
     try:
-        return urllib.request.urlopen(url, timeout=3).read()
+        return urllib.request.urlopen(url, timeout=5).read()
     except (HTTPError, URLError) as error:
         log.error('Data is not retrieved. Error: {}\n'.format(error))
     except timeout:
         log.error('Time out\n')
-    return None
+    return ''
 
 
 def encode_message(text):
     return urllib.parse.quote(text)
 
 
+def parse_message_cmd(text):
+    result = ('', '')
+    _regex = re.compile(r'^\/(?P<cmd>\w+)\s+(?P<text>\w+).*$')
+    match = _regex.match(text)
+    if match:
+        result = (match.group('cmd'), match.group('text'))
+    return result
+
+
+def parse_cmd(text):
+    result = ''
+    _regex = re.compile(r'^\/(?P<cmd>\w+).*$')
+    match = _regex.match(text)
+    if match:
+        result = match.group('cmd')
+    return result
+
+
+def get_cmd_list():
+    return ['/{}'.format(x) for x in CMD_LIST]
+
+
 def get_url(url):
     # response = requests.get(url)
-    # content = response.content.decode('utf8')
-    content = request_url(url).decode('utf8')
+    # content = response.content.decode('utf-8')
+    content = request_url(url)
+    log.debug(content)
+    if content:
+        return content.decode('utf-8')
     return content
 
 
 def get_json_from_url(url):
-    content = get_url(url)
-    js = json.loads(content)
-    return js
+    data = get_url(url)
+    if data:
+        return json.loads(data)
 
 
-def get_updates():
+def get_updates(offset=None):
     url = API_URL + 'getUpdates'
-    js = get_json_from_url(url)
-    return js
+    if offset:
+        url = '{}?offset={}'.format(url, offset)
+    json_data = get_json_from_url(url)
+    if not json_data:
+        return {}
+    return json_data
 
 
-def get_last_chat_id_and_text(updates):
-    result_key = 'result'
-    if not updates[result_key]:
-        print(updates)
-        return ()
-    num_updates = len(updates[result_key])
-    last_update = num_updates - 1
+def get_chat_data(raw_msg):
     msg_key = 'message'
 
     msg_id = None
     text = None
     chat_id = None
     first_name = None
-    raw_msg = dict()
+    update_id = raw_msg['update_id']
 
-    if not updates[result_key][last_update].get(msg_key):
+    if not raw_msg.get(msg_key):
         msg_key = 'edited_message'
 
     try:
-        msg_id = updates[result_key][last_update][msg_key]['message_id']
-        text = updates[result_key][last_update][msg_key]['text']
-        chat_id = updates[result_key][last_update][msg_key]['chat']['id']
-        first_name = updates[result_key][last_update][msg_key]['chat']['first_name']
-        raw_msg = updates[result_key][last_update][msg_key]
+        msg_id = raw_msg[msg_key]['message_id']
+        text = raw_msg[msg_key]['text']
+        chat_id = raw_msg[msg_key]['chat']['id']
+        first_name = raw_msg[msg_key]['chat']['first_name']
     except KeyError:
-        pprint(updates[result_key][last_update])
         pprint(raw_msg)
         log.warning('Key not found')
-    return (text, chat_id, first_name, msg_id, raw_msg)
+    return (text, chat_id, first_name, msg_id, update_id, raw_msg)
 
 
-def send_message(text, chat_id):
+def send_message(text, chat_id, to_stdout=ARG.to_stdout):
+    if to_stdout:
+        log.warning('Test mode. Message sent to stdout')
+        log.warning(text)
+        return
+    text = encode_message(text)
     url = API_URL + 'sendMessage?text={}&chat_id={}'.format(text, chat_id)
     get_url(url)
 
 
+def print_start_msg():
+    print('\n')
+    log.info('You can test this telegram bot via this link 👉 {} 👈'.format(BOT_URL))
+
+
 def main():
-    last_textchat = (None, None)
+    print_start_msg()
 
     while True:
-        text, chat, first_name, msg_id, raw_msg = get_last_chat_id_and_text(get_updates())
+        try:
+            data = get_updates()['result']
+        except Exception as e:
+            log.error(e)
+            log.error('getUpdates fail')
+            data = []
 
-        LAST_MSG_DB = read_conf(LAST_MSG_FP)
-        last_data = dict(text=text, chat=chat, first_name=first_name, msg_id=msg_id)
-        last_key = f'message_id_{msg_id}'
-        last_msg = {last_key: last_data}
+        while data:
+            text, chat, first_name, msg_id, update_id, raw_msg = get_chat_data(data.pop(0))
 
-        if not LAST_MSG_DB:
-            write_last_msg(last_msg)
-        elif last_key not in LAST_MSG_DB.keys():
-            LAST_MSG_DB[last_key] = last_msg
-            write_last_msg(LAST_MSG_DB)
+            print_start_msg()
+            log.info(f'Message: \"{text}\", chat_id: \"{chat}\", message_id: \"{msg_id}\"')
 
-        if (text, chat) != last_textchat:
-            send_message(encode_message(f'Your message \"{text}\" accepted 👍'), chat)
-            last_textchat = (text, chat)
-            log.info('You can test this telegram bot via this link 👉 {} 👈'.format(BOT_URL))
-            log.info(f'Last message: \"{text}\", chat_id: \"{chat}\", message_id: \"{msg_id}\"')
-        time.sleep(1)
+            cmd, extra_text = parse_message_cmd(text)
+            if all((cmd, extra_text)):
+                log.warning(f'Command: /{cmd} | text: {extra_text}')
+            elif parse_cmd(text):
+                cmd = parse_cmd(text)
+                log.warning(f'Command: /{cmd}')
+
+            if cmd == CMD_INFO:
+                info_list = ('Raspberry Pi', 'Orange Pi', 'Odroid', 'Latte Panda', 'Banana Pi')
+                send_message('\n'.join(info_list), chat)
+            elif cmd in (CMD_HELLO, CMD_HI):
+                send_message(f'Hello, {first_name} 🖖 ', chat)
+            elif cmd == CMD_HELP:
+                send_message('All commands:\n{}'.format('\n'.join(get_cmd_list())), chat)
+            elif cmd == CMD_RANDOM:
+                send_message('{}'.format(random.randint(1, 6)), chat)
+            else:
+                send_message('Unknown command {}. Please try /{}'.format(cmd, CMD_HELP), chat)
+
+            if not data:
+                # need to remove messages from telegram server after send
+                get_updates(update_id + 1) # looks fine lol
+
+        time.sleep(0.5)
 
 
 if __name__ == '__main__':
