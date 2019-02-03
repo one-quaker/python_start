@@ -22,6 +22,7 @@ ARG = parser.parse_args()
 
 CMD_HELP       = 'help'
 CMD_INFO       = 'info'
+CMD_ALARM      = 'alarm'
 CMD_SILENTYS   = 'silentys'
 CMD_HI         = 'hi'
 CMD_HELLO      = 'hello'
@@ -35,8 +36,12 @@ CMD_LIST = (
     CMD_INFO,
     CMD_SILENTYS,
     CMD_RANDOM,
+    CMD_ALARM,
     CMD_REG,
 )
+
+
+MSG_TODO = 'Not implemented'
 
 
 def get_log(debug):
@@ -181,6 +186,20 @@ def print_start_msg():
     log.info('You can test this telegram bot via this link 👉 {} 👈'.format(BOT_URL))
 
 
+def digit_to_emoji(digit):
+    d = (
+        '☠️',
+        '👻',
+        '🏂',
+        '😈',
+        '😱',
+        '👍',
+        '😎',
+    )
+    if digit < len(d):
+        return d[digit]
+
+
 def main():
     print_start_msg()
 
@@ -208,16 +227,22 @@ def main():
             if cmd == CMD_INFO:
                 info_list = ('Raspberry Pi', 'Orange Pi', 'Odroid', 'Latte Panda', 'Banana Pi')
                 send_message('\n'.join(info_list), chat)
-            if cmd == CMD_SILENTYS:
+            elif cmd == CMD_SILENTYS:
                 send_message('http://silentys.com 👍', chat)
+            elif cmd == CMD_REG:
+                send_message(MSG_TODO, chat)
+            elif cmd == CMD_ALARM:
+                send_message(MSG_TODO, chat)
             elif cmd in (CMD_HELLO, CMD_HI):
                 send_message(f'Hello, {first_name} 🖖 ', chat)
             elif cmd == CMD_HELP:
                 send_message('All commands:\n{}'.format('\n'.join(get_cmd_list())), chat)
             elif cmd == CMD_RANDOM:
-                send_message('{}'.format(random.randint(1, 6)), chat)
+                digit = random.randint(1, 6)
+                response = '{} {}'.format(digit, digit_to_emoji(digit))
+                send_message(response, chat)
             else:
-                send_message('Unknown command {}. Please try /{}'.format(cmd, CMD_HELP), chat)
+                send_message('Unknown command \"{}\". Please try /{}'.format(text, CMD_HELP), chat)
 
             if not data:
                 # need to remove messages from telegram server after send
