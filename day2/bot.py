@@ -10,8 +10,6 @@ import random
 from pprint import pprint
 
 
-LAST_MSG_FN = 'last_msg.json'
-LAST_MSG_FP = os.path.join(os.getcwd(), LAST_MSG_FN)
 CONF_FN = 'conf.json'
 CONF_FP = os.path.join(os.getcwd(), CONF_FN)
 
@@ -22,17 +20,20 @@ parser.add_argument('--debug', action='store_true', default=False)
 ARG = parser.parse_args()
 
 
-CMD_HELP   = 'help'
-CMD_INFO   = 'info'
-CMD_HI     = 'hi'
-CMD_HELLO  = 'hello'
-CMD_RANDOM = 'random'
-CMD_REG    = 'reg'
+CMD_HELP       = 'help'
+CMD_INFO       = 'info'
+CMD_SILENTYS   = 'silentys'
+CMD_HI         = 'hi'
+CMD_HELLO      = 'hello'
+CMD_RANDOM     = 'random'
+CMD_REG        = 'reg'
+
 
 CMD_LIST = (
     CMD_HELP,
     CMD_HI,
     CMD_INFO,
+    CMD_SILENTYS,
     CMD_RANDOM,
     CMD_REG,
 )
@@ -75,10 +76,6 @@ if not os.path.isfile(CONF_FP) or not CONF or 'test' in API_TOKEN:
     print(API_TOKEN, API_URL)
     print(f'Please edit {CONF_FN}')
     sys.exit(1)
-
-
-def write_last_msg(data):
-    write_conf(data, LAST_MSG_FN)
 
 
 def request_url(url):
@@ -211,6 +208,8 @@ def main():
             if cmd == CMD_INFO:
                 info_list = ('Raspberry Pi', 'Orange Pi', 'Odroid', 'Latte Panda', 'Banana Pi')
                 send_message('\n'.join(info_list), chat)
+            if cmd == CMD_SILENTYS:
+                send_message('http://silentys.com 👍', chat)
             elif cmd in (CMD_HELLO, CMD_HI):
                 send_message(f'Hello, {first_name} 🖖 ', chat)
             elif cmd == CMD_HELP:
