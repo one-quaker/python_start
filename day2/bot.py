@@ -225,36 +225,46 @@ def main():
             extra_text = parse_message_cmd(text)[1]
             log.warning(f'Command: /{cmd}')
 
+
             if cmd == CMD_INFO:
                 send_message(BOT_URL_MSG, chat)
+
             elif cmd == CMD_SILENTYS:
                 send_message('http://silentys.com 👍', chat)
+
             elif cmd == CMD_MSG:
                 send_message(text, chat)
+
             elif cmd == CMD_REG:
                 send_message(MSG_TODO, chat)
+
             elif cmd == CMD_ALARM:
                 send_message(MSG_TODO, chat)
+
             elif cmd in (CMD_START, CMD_HELLO, CMD_HI):
                 send_message(f'Hello, {first_name} 🖖 ', chat)
+
             elif cmd == CMD_STOP:
                 send_message(f'Bye, {first_name} 😭 ', chat)
+
             elif cmd in (CMD_HELP, CMD_HELP_SHORT):
                 send_message('All commands:\n{}'.format('\n'.join(get_cmd_list())), chat)
+
             elif cmd == CMD_RANDOM:
                 user_digit = None
                 try:
                     user_digit = int(extra_text)
                 except ValueError:
                     log.error('Invalid input from user')
-
                 rand_digit = random.randint(1, 6)
                 response = '{} => {}'.format(rand_digit, digit_to_emoji(rand_digit))
                 if user_digit == rand_digit:
                     response = '{} == {}\nYou win! 💪💪💪 '.format(user_digit, rand_digit)
                 send_message(response, chat)
+
             else:
                 send_message('Unknown command \"{}\". Please try /{}'.format(text, CMD_HELP), chat)
+
 
             if not data:
                 # need to remove messages from telegram server after send
