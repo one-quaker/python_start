@@ -20,7 +20,11 @@ parser.add_argument('--debug', action='store_true', default=False)
 ARG = parser.parse_args()
 
 
+CMD_START      = 'start'
+CMD_STOP       = 'stop'
+CMD_MSG        = 'msg'
 CMD_HELP       = 'help'
+CMD_HELP_SHORT = 'h'
 CMD_INFO       = 'info'
 CMD_ALARM      = 'alarm'
 CMD_SILENTYS   = 'silentys'
@@ -31,6 +35,7 @@ CMD_REG        = 'reg'
 
 
 CMD_LIST = (
+    CMD_MSG,
     CMD_HELP,
     CMD_HI,
     CMD_INFO,
@@ -73,6 +78,7 @@ CONF = read_conf(CONF_FP)
 API_TOKEN = CONF.get('API_TOKEN')
 API_URL = 'https://api.telegram.org/bot{}/'.format(API_TOKEN)
 BOT_URL = 'https://t.me/{}'.format(CONF.get('BOT_NAME'))
+BOT_URL_MSG = 'You can test this telegram bot via this link 👉 {} 👈'.format(BOT_URL)
 log = get_log(ARG.debug)
 
 
@@ -102,7 +108,7 @@ def encode_message(text):
 
 def parse_message_cmd(text):
     result = ('', '')
-    _regex = re.compile(r'^\/(?P<cmd>\w+)\s+(?P<text>\w+).*$')
+    _regex = re.compile(r'^\/(?P<cmd>\w+)\s+(?P<text>[\w|\d]+).*$')
     match = _regex.match(text)
     if match:
         result = (match.group('cmd'), match.group('text'))
@@ -173,9 +179,7 @@ def get_chat_data(raw_msg):
 
 def send_message(text, chat_id, to_stdout=ARG.to_stdout):
     if to_stdout:
-        log.warning('Test mode. Message sent to stdout')
-        log.warning(text)
-        return
+        log.info('Message \"{}\" sent'.format(text))
     text = encode_message(text)
     url = API_URL + 'sendMessage?text={}&chat_id={}'.format(text, chat_id)
     get_url(url)
@@ -183,21 +187,21 @@ def send_message(text, chat_id, to_stdout=ARG.to_stdout):
 
 def print_start_msg():
     print('\n')
-    log.info('You can test this telegram bot via this link 👉 {} 👈'.format(BOT_URL))
+    log.info(BOT_URL_MSG)
 
 
 def digit_to_emoji(digit):
+    idx = digit - 1
     d = (
         '☠️',
         '👻',
-        '🏂',
+        '😎',
         '😈',
         '😱',
         '👍',
-        '😎',
     )
-    if digit < len(d):
-        return d[digit]
+    if idx < len(d):
+        return d[idx] * digit
 
 
 def main():
@@ -217,29 +221,37 @@ def main():
             print_start_msg()
             log.info(f'Message: \"{text}\", chat_id: \"{chat}\", message_id: \"{msg_id}\"')
 
-            cmd, extra_text = parse_message_cmd(text)
-            if all((cmd, extra_text)):
-                log.warning(f'Command: /{cmd} | text: {extra_text}')
-            elif parse_cmd(text):
-                cmd = parse_cmd(text)
-                log.warning(f'Command: /{cmd}')
+            cmd = parse_cmd(text)
+            extra_text = parse_message_cmd(text)[1]
+            log.warning(f'Command: /{cmd}')
 
             if cmd == CMD_INFO:
-                info_list = ('Raspberry Pi', 'Orange Pi', 'Odroid', 'Latte Panda', 'Banana Pi')
-                send_message('\n'.join(info_list), chat)
+                send_message(BOT_URL_MSG, chat)
             elif cmd == CMD_SILENTYS:
                 send_message('http://silentys.com 👍', chat)
+            elif cmd == CMD_MSG:
+                send_message(text, chat)
             elif cmd == CMD_REG:
                 send_message(MSG_TODO, chat)
             elif cmd == CMD_ALARM:
                 send_message(MSG_TODO, chat)
-            elif cmd in (CMD_HELLO, CMD_HI):
+            elif cmd in (CMD_START, CMD_HELLO, CMD_HI):
                 send_message(f'Hello, {first_name} 🖖 ', chat)
-            elif cmd == CMD_HELP:
+            elif cmd == CMD_STOP:
+                send_message(f'Bye, {first_name} 😭 ', chat)
+            elif cmd in (CMD_HELP, CMD_HELP_SHORT):
                 send_message('All commands:\n{}'.format('\n'.join(get_cmd_list())), chat)
             elif cmd == CMD_RANDOM:
-                digit = random.randint(1, 6)
-                response = '{} {}'.format(digit, digit_to_emoji(digit))
+                user_digit = None
+                try:
+                    user_digit = int(extra_text)
+                except ValueError:
+                    log.error('Invalid input from user')
+
+                rand_digit = random.randint(1, 6)
+                response = '{} => {}'.format(rand_digit, digit_to_emoji(rand_digit))
+                if user_digit == rand_digit:
+                    response = '{} == {}\nYou win! 💪💪💪 '.format(user_digit, rand_digit)
                 send_message(response, chat)
             else:
                 send_message('Unknown command \"{}\". Please try /{}'.format(text, CMD_HELP), chat)
