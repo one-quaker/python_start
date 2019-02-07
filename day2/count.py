@@ -32,7 +32,7 @@ t = ARG.time
 delay = ARG.delay
 
 
-while t:
+while t > 0:
     log.info('Live coding starts in {:.02f} minutes 👍💪'.format(t / 60))
     t -= delay
     time.sleep(delay)
