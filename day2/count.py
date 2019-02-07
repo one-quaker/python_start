@@ -61,14 +61,24 @@ log.debug('Debug mode ON')
 log.warning(ARG.start_message)
 
 
-data = dict()
+# data = dict()
+#
+# for idx, key in enumerate(ARG.key_list):
+#     try:
+#         data[key] = ARG.value_list[idx]
+#     except IndexError:
+#         log.warning('Out of range')
 
 
-for idx, key in enumerate(ARG.key_list):
-    try:
-        data[key] = ARG.value_list[idx]
-    except IndexError:
-        log.warning('Out of range')
+data = dict(zip(ARG.key_list, ARG.value_list))
 
+print(data.items())
+print(data.keys())
+print(data.values())
+
+if 'bonus' data.keys():
+    print('bonus key found')
+else:
+    data['bonus'] = 10
 
 log.info(data)
