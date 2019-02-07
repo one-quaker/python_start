@@ -72,12 +72,14 @@ log.warning(ARG.start_message)
 
 data = dict(zip(ARG.key_list, ARG.value_list))
 
-print(data.items())
-print(data.keys())
-print(data.values())
 
-if 'bonus' data.keys():
-    print('bonus key found')
+log.debug(data.items())
+log.debug(data.keys())
+log.debug(data.values())
+
+
+if 'bonus' in data.keys():
+    log.info('bonus: {bonus}'.format(**data))
 else:
     data['bonus'] = 10
 
