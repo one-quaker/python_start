@@ -65,8 +65,10 @@ data = dict()
 
 
 for idx, key in enumerate(ARG.key_list):
-    data[key] = ARG.value_list[idx]
-
+    try:
+        data[key] = ARG.value_list[idx]
+    except IndexError:
+        log.warning('Out of range')
 
 
 log.info(data)
