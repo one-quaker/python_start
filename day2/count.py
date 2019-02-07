@@ -8,8 +8,18 @@ parser = argparse.ArgumentParser(description='Countdown timer')
 parser.add_argument('-t', '--time', type=int, default=5, help='Time in seconds')
 parser.add_argument('-d', '--delay', type=int, default=1, help='Delay in seconds')
 parser.add_argument('-m', '--start-message', type=str, required=True, help='User message')
-# parser.add_argument('--debug', action='store_true', default=False)
+parser.add_argument('-D', '--debug', action='store_true', default=False)
+
+
 ARG = parser.parse_args()
+
+
+LOG_TPL = '[%(levelname)s] %(message)s'
+if ARG.debug:
+    LOG_LEVEL = logging.DEBUG
+else:
+    LOG_LEVEL = logging.INFO
+logging.basicConfig(format=LOG_TPL, level=LOG_LEVEL)
 
 
 # print(sys.argv)
@@ -28,3 +38,4 @@ while t > 0:
 
 
 print(ARG.start_message)
+print(ARG.debug)
