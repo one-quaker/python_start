@@ -61,3 +61,4 @@ log.warning(ARG.start_message)
 
 for message in ARG.message_list:
     log.info(message)
+    log.info(ARG.test_float)
