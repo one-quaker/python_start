@@ -8,6 +8,7 @@ parser = argparse.ArgumentParser(description='Countdown timer')
 parser.add_argument('-t', '--time', type=int, default=5, help='Time in seconds')
 parser.add_argument('-d', '--delay', type=int, default=1, help='Delay in seconds')
 parser.add_argument('-m', '--start-message', type=str, required=True, help='User message')
+parser.add_argument('--test-float', type=float, help='Float test value')
 parser.add_argument('-M', '--message-list', nargs='+', help='Messages list')
 parser.add_argument('-D', '--debug', action='store_true', default=False, help='Enable debug mode')
 
@@ -57,4 +58,6 @@ except ZeroDivisionError:
 log.debug('Debug mode ON')
 log.warning(ARG.start_message)
 
-log.info(ARG.message_list)
+
+for message in ARG.message_list:
+    log.info(message)
