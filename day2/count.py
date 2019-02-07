@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 import time
+import itertools
 
 
 parser = argparse.ArgumentParser(description='Countdown timer')
@@ -71,6 +72,7 @@ log.warning(ARG.start_message)
 
 
 data = dict(zip(ARG.key_list, ARG.value_list))
+# data = dict(itertools.zip_longest(ARG.key_list, ARG.value_list, fillvalue=0))
 
 
 log.debug(data.items())
