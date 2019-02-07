@@ -36,7 +36,7 @@ BASE_TPL = 'Live coding starts in'
 while t > 0:
     if t > 3600:
         log.debug(t / 3600)
-        log.info('{0} {1} hours 👀'.format(BASE_TPL, round(t / 3600, 2)))
+        log.info('{0} {1} hours 👀'.format(BASE_TPL, round(t / 3600, 1)))
     elif t >= 60 and t <= 3600:
         log.info('{0} {1} minutes 👍💪'.format(BASE_TPL, int(t / 60)))
     else:
