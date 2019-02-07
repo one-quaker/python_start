@@ -20,7 +20,7 @@ if ARG.debug:
 else:
     LOG_LEVEL = logging.INFO
 logging.basicConfig(format=LOG_TPL, level=LOG_LEVEL)
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 
 # print(sys.argv)
@@ -40,6 +40,11 @@ while t > 0:
     log.debug('Time: {}'.format(t))
 
 
-log.warning(ARG.start_message)
-log.error('Test error')
+try:
+    a = 8 / 0
+except ZeroDivisionError:
+    log.error('Division by zero. Go to school dude 😎👹😭')
+
+
 log.debug('Debug mode ON')
+log.warning(ARG.start_message)
