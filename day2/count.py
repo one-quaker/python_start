@@ -34,10 +34,13 @@ BASE_TPL = 'Live coding starts in'
 
 
 while t > 0:
-    if t <= 60:
-        log.info('{0} {1} seconds 👍💪'.format(BASE_TPL, t))
-    else:
+    if t > 3600:
+        log.debug(t / 3600)
+        log.info('{0} {1} hours 👀'.format(BASE_TPL, round(t / 3600, 2)))
+    elif t >= 60 and t <= 3600:
         log.info('{0} {1} minutes 👍💪'.format(BASE_TPL, int(t / 60)))
+    else:
+        log.info('{0} {1} seconds 👽'.format(BASE_TPL, t))
     t -= delay
     time.sleep(delay)
     log.debug('Delay: {}'.format(delay))
