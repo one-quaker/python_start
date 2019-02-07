@@ -9,7 +9,8 @@ parser.add_argument('-t', '--time', type=int, default=5, help='Time in seconds')
 parser.add_argument('-d', '--delay', type=int, default=1, help='Delay in seconds')
 parser.add_argument('-m', '--start-message', type=str, required=True, help='User message')
 parser.add_argument('--test-float', type=float, help='Float test value')
-parser.add_argument('-M', '--message-list', nargs='+', help='Messages list')
+parser.add_argument('--key-list', nargs='+', help='Key list')
+parser.add_argument('--value-list', nargs='+', help='Value list')
 parser.add_argument('-D', '--debug', action='store_true', default=False, help='Enable debug mode')
 
 
@@ -55,10 +56,17 @@ except ZeroDivisionError:
     log.error('Division by zero. Go to school dude 😎👹😭')
 
 
+log.debug(ARG.test_float)
 log.debug('Debug mode ON')
 log.warning(ARG.start_message)
 
 
-for message in ARG.message_list:
-    log.info(message)
-    log.info(ARG.test_float)
+data = dict()
+
+
+for idx, key in enumerate(ARG.key_list):
+    data[key] = ARG.value_list[idx]
+
+
+
+log.info(data)
