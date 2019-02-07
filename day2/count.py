@@ -30,10 +30,14 @@ log = logging.getLogger()
 
 t = ARG.time
 delay = ARG.delay
+BASE_TPL = 'Live coding starts in'
 
 
 while t > 0:
-    log.info('Live coding starts in {:.02f} minutes 👍💪'.format(t / 60))
+    if t <= 60:
+        log.info('{0} {1} seconds 👍💪'.format(BASE_TPL, t))
+    else:
+        log.info('{0} {1} minutes 👍💪'.format(BASE_TPL, int(t / 60)))
     t -= delay
     time.sleep(delay)
     log.debug('Delay: {}'.format(delay))
