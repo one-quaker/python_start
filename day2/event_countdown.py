@@ -3,10 +3,18 @@ import logging
 import time
 
 
+def check_positive(val):
+    val = int(val)
+    if val <= 0:
+        raise argparse.ArgumentTypeError(f'\"{val}\", need positive int value')
+    return val
+
+
 parser = argparse.ArgumentParser(description='Countdown timer')
-parser.add_argument('-t', '--time', type=int, default=5, help='Time in seconds')
-parser.add_argument('-d', '--delay', type=int, default=1, help='Delay in seconds')
-parser.add_argument('-m', '--start-message', type=str, required=True, help='User message')
+parser.add_argument('-t', '--time', type=check_positive, default=5, help='Time in seconds')
+parser.add_argument('-d', '--delay', type=check_positive, default=1, help='Delay in seconds')
+parser.add_argument('-C', '--count-message', type=str, required=True, help='Count message')
+parser.add_argument('-S', '--start-message', type=str, default='Start!!! 👍', help='Start message')
 parser.add_argument('-D', '--debug', action='store_true', default=False, help='Enable debug mode')
 
 
@@ -22,9 +30,13 @@ logging.basicConfig(format=LOG_TPL, level=LOG_LEVEL)
 log = logging.getLogger()
 
 
+BASE_TPL = f'{ARG.count_message} starts in'
+
+
 t = ARG.time
 delay = ARG.delay
-BASE_TPL = f'{ARG.start_message} starts in'
+if delay > t:
+    delay = t
 
 
 while t > 0:
@@ -41,4 +53,4 @@ while t > 0:
     log.debug(f'Time: {t}')
 
 
-print('Start!!! 👍')
+print(ARG.start_message)
