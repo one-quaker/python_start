@@ -80,29 +80,34 @@ text_list = (
 )
 
 
+def send_mail(subj, text):
+    log.debug('\nSubject: {}\nText: {}\n'.format(subj, text))
+    try:
+        fromaddr = CONF['user']['from']
+        toaddrs = CONF['email_list']
+        msg = 'From: {0}\r\nTo: {1}\r\nSubject: {2}\r\n\r\n'.format(
+            fromaddr,
+            ', '.join(toaddrs),
+            subj,
+        )
+        msg += '{}\r\n'.format(text)
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        # server.set_debuglevel(1)
+        server.ehlo()
+        server.starttls()
+        server.login(CONF['user']['from'], CONF['user']['password'])
+        server.sendmail(fromaddr, toaddrs, msg)
+        server.quit()
+        log.info('Email sent!')
+    except Exception as e:
+        log.error('{}'.format(e))
+        log.error('Sending email fail. Check your options in config file')
+
+
 # pprint(list(zip(subject_list, text_list)))
 for subject, text in zip(subject_list, text_list):
-    print(subject, ': ', text)
+    send_mail(subject, text)
 
-
-# try:
-#     fromaddr = CONF['user']['from']
-#     toaddrs = CONF['email_list']
-#     subj = CONF['message']['subject']
-#     msg = 'From: {0}\r\nTo: {1}\r\nSubject: {2}\r\n\r\n'.format(
-#         fromaddr,
-#         ', '.join(toaddrs),
-#         subj,
-#     )
-#     msg += '{}\r\n'.format(CONF['message']['text'])
-#     server = smtplib.SMTP('smtp.gmail.com', 587)
-#     # server.set_debuglevel(1)
-#     server.ehlo()
-#     server.starttls()
-#     server.login(CONF['user']['from'], CONF['user']['password'])
-#     server.sendmail(fromaddr, toaddrs, msg)
-#     server.quit()
-#     log.info('Email sent!')
-# except Exception as e:
-#     log.error('{}'.format(e))
-#     log.error('Sending email fail. Check your options in config file')
+# for i in range(15):
+#     subject, text = ('Subject {:02d}'.format(i), 'Text message {:02d}'.format(i))
+#     send_mail(subject, text)
