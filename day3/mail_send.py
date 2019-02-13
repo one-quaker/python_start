@@ -43,7 +43,6 @@ CONF = read_conf(CONF_FP)
 log = get_log(ARG.debug)
 
 
-# if not os.path.isfile(CONF_FP) or not CONF or ARG.force:
 if any((not os.path.isfile(CONF_FP), not CONF, ARG.force)):
     email_list = [
         'user1@gmail.com',
@@ -57,8 +56,7 @@ if any((not os.path.isfile(CONF_FP), not CONF, ARG.force)):
     data = dict(
         email_list=email_list,
         message=message,
-        email_from='your.email@gmail.com',
-        email_password='your_password_here',
+        user={'from': 'your.email@gmail.com', 'password': 'your_password_here'},
     )
     write_conf(data, CONF_FP)
     print(f'Please edit {CONF_FN}')
