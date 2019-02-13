@@ -4,6 +4,7 @@ import os
 import sys
 import argparse
 import smtplib
+from pprint import pprint
 
 
 CONF_FN = 'conf.json'
@@ -67,22 +68,41 @@ if any((not os.path.isfile(CONF_FP), not CONF, ARG.force)):
 log.info(CONF['message'])
 
 
-try:
-    fromaddr = CONF['user']['from']
-    toaddrs = CONF['email_list']
-    subj = CONF['message']['subject']
-    msg = ('From: {0}\r\nTo: {1}\r\nSubject: {2}\r\n\r\n'.format(
-        fromaddr,
-        ', '.join(toaddrs),
-        subj,
-    ))
-    msg += 'Error log:\r\n'
-    msg += '\r\n'.join(self.read_log_file())
-    server = smtplib.SMTP(self.CONFIG_EMAIL_SERVER)
-    # server.set_debuglevel(1)
-    server.ehlo()
-    server.starttls()
-    server.login(self.CONFIG_EMAIL_USER, self.CONFIG_EMAIL_PASS)
-except Exception as e:
-    log.error('{}'.format(e))
-    log.error('Sending email fail. Check your options in config file')
+subject_list = (
+    'Hello world',
+    'Hello from \"Python start\"',
+    'Test subject from python',
+)
+text_list = (
+    'Hello world text message',
+    'Hello from \"Python start\" text message',
+    'Test text message',
+)
+
+
+# pprint(list(zip(subject_list, text_list)))
+for subject, text in zip(subject_list, text_list):
+    print(subject, ': ', text)
+
+
+# try:
+#     fromaddr = CONF['user']['from']
+#     toaddrs = CONF['email_list']
+#     subj = CONF['message']['subject']
+#     msg = 'From: {0}\r\nTo: {1}\r\nSubject: {2}\r\n\r\n'.format(
+#         fromaddr,
+#         ', '.join(toaddrs),
+#         subj,
+#     )
+#     msg += '{}\r\n'.format(CONF['message']['text'])
+#     server = smtplib.SMTP('smtp.gmail.com', 587)
+#     # server.set_debuglevel(1)
+#     server.ehlo()
+#     server.starttls()
+#     server.login(CONF['user']['from'], CONF['user']['password'])
+#     server.sendmail(fromaddr, toaddrs, msg)
+#     server.quit()
+#     log.info('Email sent!')
+# except Exception as e:
+#     log.error('{}'.format(e))
+#     log.error('Sending email fail. Check your options in config file')
