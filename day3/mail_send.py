@@ -11,6 +11,7 @@ CONF_FP = os.path.join(os.getcwd(), CONF_FN)
 
 parser = argparse.ArgumentParser(description='Email send')
 parser.add_argument('-D', '--debug', action='store_true', default=False)
+parser.add_argument('-f', '--force', action='store_true', default=False)
 ARG = parser.parse_args()
 
 
@@ -42,7 +43,8 @@ CONF = read_conf(CONF_FP)
 log = get_log(ARG.debug)
 
 
-if not os.path.isfile(CONF_FP) or not CONF:
+# if not os.path.isfile(CONF_FP) or not CONF or ARG.force:
+if any((not os.path.isfile(CONF_FP), not CONF, ARG.force)):
     email_list = [
         'user1@gmail.com',
         'user2@gmail.com',
@@ -52,7 +54,13 @@ if not os.path.isfile(CONF_FP) or not CONF:
         text='Message body text',
         subject='Message subject here'
     )
-    write_conf(dict(email_list=email_list, message=message), CONF_FP)
+    data = dict(
+        email_list=email_list,
+        message=message,
+        email_from='your.email@gmail.com',
+        email_password='your_password_here',
+    )
+    write_conf(data, CONF_FP)
     print(f'Please edit {CONF_FN}')
     sys.exit(1)
 
