@@ -4,6 +4,7 @@ import os
 import sys
 import argparse
 import smtplib
+import threading
 from pprint import pprint
 
 
@@ -75,7 +76,7 @@ if any((not os.path.isfile(CONF_FP), not CONF, ARG.force)):
     sys.exit(1)
 
 
-log.info(CONF['message_list'])
+# log.info(CONF['message_list'])
 
 
 def send_mail(subj, text, to_email):
@@ -101,12 +102,40 @@ def send_mail(subj, text, to_email):
         log.error('Sending email fail. Check your options in config file')
 
 
-for email in CONF['email_list']:
-    for message in CONF['message_list']:
-        time.sleep(1)
-        send_mail(message['subject'], message['text'], email)
+def mail_send_loop():
+    for email in CONF['email_list']:
+        for message in CONF['message_list']:
+            time.sleep(1)
+            send_mail(message['subject'], message['text'], email)
 
 
-# for i in range(15):
-#     subject, text = ('Subject {:02d}'.format(i), 'Text message {:02d}'.format(i))
-#     send_mail(subject, text)
+Q = ['Email task #{} done!'.format(x) for x in range(30)]
+
+
+def t1_test():
+    worker_name = 'Worker #1'
+    while Q:
+        try:
+            log.info('{}: \"{}\"'.format(worker_name, Q.pop(0)))
+            time.sleep(1)
+        except IndexError:
+            log.warning('{}: Q is empty'.format(worker_name))
+
+
+def t2_test():
+    worker_name = 'Worker #2'
+    while Q:
+        try:
+            log.info('{}: \"{}\"'.format(worker_name, Q.pop(0)))
+            time.sleep(5)
+        except IndexError:
+            log.warning('{}: Q is empty'.format(worker_name))
+
+
+t1 = threading.Thread(target=t1_test)
+# t1.daemon = True
+t1.start()
+
+t2 = threading.Thread(target=t2_test)
+# t2.daemon = True
+t2.start()
