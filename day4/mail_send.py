@@ -46,18 +46,28 @@ log = get_log(ARG.debug)
 
 
 if any((not os.path.isfile(CONF_FP), not CONF, ARG.force)):
-    email_list = [
+    email_list = (
         'user1@gmail.com',
         'user2@gmail.com',
         'user3@gmail.com',
-    ]
-    message = dict(
-        text='Message body text',
-        subject='Message subject here'
+    )
+    message_list = (
+        dict(
+            subject='Subject1',
+            text='Message1 text',
+        ),
+        dict(
+            subject='Subject2',
+            text='Message2 text',
+        ),
+        dict(
+            subject='Subject3',
+            text='Message3 text',
+        ),
     )
     data = dict(
         email_list=email_list,
-        message=message,
+        message_list=message_list,
         user={'from': 'your.email@gmail.com', 'password': 'your_password_here'},
     )
     write_conf(data, CONF_FP)
@@ -65,29 +75,16 @@ if any((not os.path.isfile(CONF_FP), not CONF, ARG.force)):
     sys.exit(1)
 
 
-log.info(CONF['message'])
+log.info(CONF['message_list'])
 
 
-subject_list = (
-    'Hello world',
-    'Hello from \"Python start\"',
-    'Test subject from python',
-)
-text_list = (
-    'Hello world text message',
-    'Hello from \"Python start\" text message',
-    'Test text message',
-)
-
-
-def send_mail(subj, text):
+def send_mail(subj, text, to_email):
     log.debug('\nSubject: {}\nText: {}\n'.format(subj, text))
     try:
         fromaddr = CONF['user']['from']
-        toaddrs = CONF['email_list']
         msg = 'From: {0}\r\nTo: {1}\r\nSubject: {2}\r\n\r\n'.format(
             fromaddr,
-            ', '.join(toaddrs),
+            to_email,
             subj,
         )
         msg += '{}\r\n'.format(text)
@@ -96,7 +93,7 @@ def send_mail(subj, text):
         server.ehlo()
         server.starttls()
         server.login(CONF['user']['from'], CONF['user']['password'])
-        server.sendmail(fromaddr, toaddrs, msg)
+        server.sendmail(fromaddr, to_email, msg)
         server.quit()
         log.info('Email sent!')
     except Exception as e:
@@ -104,9 +101,11 @@ def send_mail(subj, text):
         log.error('Sending email fail. Check your options in config file')
 
 
-# pprint(list(zip(subject_list, text_list)))
-for subject, text in zip(subject_list, text_list):
-    send_mail(subject, text)
+for email in CONF['email_list']:
+    for message in CONF['message_list']:
+        time.sleep(1)
+        send_mail(message['subject'], message['text'], email)
+
 
 # for i in range(15):
 #     subject, text = ('Subject {:02d}'.format(i), 'Text message {:02d}'.format(i))
