@@ -1,0 +1,18 @@
+version: '3'
+services:
+  python_app:
+    container_name: python_app
+    build:
+      context: ./python_app
+    volumes:
+      - ..:/python_app
+    ports:
+      - "127.0.0.1:8000:8000"
+
+# volumes:
+#   local_postgres_data: {}
+#
+# postgres:
+#   image: postgres:10.4
+#   volumes:
+#     - local_postgres_data:/var/lib/postgresql/data

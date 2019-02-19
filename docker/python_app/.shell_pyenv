@@ -1,0 +1,8 @@
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PATH:$HOME/.pyenv/bin"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+alias workon="pyenv activate"
+alias lsvirtualenv="pyenv virtualenvs"
+alias mkvirtualenv="pyenv virtualenv $PYTHON_VERSION"
+alias python="$HOME/.pyenv/versions/$PYTHON_VERSION/bin/python"
