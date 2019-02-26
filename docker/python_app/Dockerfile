@@ -55,6 +55,25 @@ COPY requirements.txt $app_dir
 RUN $env_pip_bin install -U pip
 RUN $env_pip_bin install -r requirements.txt
 
+# ohmyzsh
+ARG zshconf_fn=.zshrc
+USER root
+RUN apt install -y zsh wget nano vim tmux htop
+RUN chsh $user -s /bin/zsh
+
+ENV TERM xterm
+USER $user
+WORKDIR $home
+# run the installation script
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+RUN echo ". $shell_env_fp" >> $home/$zshconf_fn
+RUN sed -i -e 's/plugins=(git)/plugins=(git python django docker nmap pip postgres rsync sudo tmux systemd)/g' $home/$zshconf_fn
+RUN sed -i -e 's/ZSH_THEME="robbyrussell"/ZSH_THEME="bira"/g' $home/$zshconf_fn
+RUN echo "export LANG=en_US.UTF-8" >> $home/$zshconf_fn
+RUN echo "workon $app_name" >> $home/$zshconf_fn
+WORKDIR $app_dir
+
+
 ENV VENV_NAME=$app_name
 ENV PYTHON_VERSION=$py_ver
 
@@ -64,4 +83,4 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh
 USER $user
 
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+ENTRYPOINT ["/bin/zsh", "/entrypoint.sh"]
