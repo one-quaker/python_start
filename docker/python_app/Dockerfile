@@ -8,79 +8,82 @@ RUN apt install -y sudo bash
 RUN apt install -y libev-dev libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl
 
 
-ARG py_ver=3.7.2
-ARG pyenv_version=1.2.9
+ENV PYTHON_VERSION=3.7.2
+ENV PYENV_VERSION=1.2.9
 
-ARG user=web-user
-ARG home=/home/$user
+ENV USER=web-user
+ENV HOME=/home/$USER
 
-ARG app_name=python_app
-ARG app_dir=/$app_name
+ENV APP_NAME=python_app
+ENV APP_DIR=/$APP_NAME
 
-ARG pyenv_dir=$home/.pyenv
-ARG pyenv_bin=$pyenv_dir/bin/pyenv
-ARG py_bin=$pyenv_dir/versions/$app_name/bin/python3
-ARG env_py_bin=$pyenv_dir/versions/$app_name/bin/python
-ARG env_pip_bin=$pyenv_dir/versions/$app_name/bin/pip
+ENV PYENV_DIR=$HOME/.pyenv
+ENV PYENV_BIN_ROOT=$PYENV_DIR/bin
+ENV PYENV_BIN=$PYENV_BIN_ROOT/pyenv
+ENV ENV_BIN_ROOT=$PYENV_DIR/versions/$APP_NAME/bin
+ENV ENV_PYTHON_BIN=$ENV_BIN_ROOT/python
+ENV ENV_PIP_BIN=$ENV_BIN_ROOT/pip
 
-ARG shell_fn=.shell_pyenv
-ARG shell_env_fp=$home/$shell_fn
+ENV SHELL_FN=.shell_pyenv
+ENV SHELL_ENV_FP=$HOME/$SHELL_FN
 
-RUN useradd -m -s /bin/bash $user
+RUN useradd -m -s /bin/bash $USER
 
 RUN echo 'Europe/Kiev' > /etc/timezone
 RUN DEBIAN_FRONTEND=noninteractive apt install -y tzdata
 RUN dpkg-reconfigure -f noninteractive tzdata
 
-USER $user
-WORKDIR $home
-RUN git clone https://github.com/pyenv/pyenv.git $pyenv_dir
-RUN git clone https://github.com/pyenv/pyenv-virtualenv.git $pyenv_dir/plugins/pyenv-virtualenv
-WORKDIR $pyenv_dir
-RUN git checkout tags/v$pyenv_version
-WORKDIR $home
-COPY --chown=web-user:web-user $shell_fn $home
-RUN echo ". $shell_env_fp" >> $home/.bashrc
+USER $USER
+WORKDIR $HOME
+RUN git clone https://github.com/pyenv/pyenv.git $PYENV_DIR
+RUN git clone https://github.com/pyenv/pyenv-virtualenv.git $PYENV_DIR/plugins/pyenv-virtualenv
+WORKDIR $PYENV_DIR
+RUN git checkout tags/v$PYENV_VERSION
+WORKDIR $HOME
+COPY $SHELL_FN $HOME
+USER root
+RUN chown $USER:$USER $HOME/$SHELL_FN
+USER $USER
+RUN echo ". $SHELL_ENV_FP" >> $HOME/.bashrc
 
-RUN $pyenv_bin install $py_ver
-RUN $pyenv_bin virtualenv $py_ver $app_name
+RUN $PYENV_BIN install $PYTHON_VERSION
+RUN $PYENV_BIN virtualenv $PYTHON_VERSION $APP_NAME
 
 user root
-RUN mkdir $app_dir
-RUN chown $user:$user -R $app_dir
+RUN mkdir $APP_DIR
+RUN chown $USER:$USER -R $APP_DIR
 
-USER $user
-WORKDIR $app_dir
-COPY requirements.txt $app_dir
-RUN $env_pip_bin install -U pip
-RUN $env_pip_bin install -r requirements.txt
+USER $USER
+WORKDIR $APP_DIR
+COPY requirements.txt $APP_DIR
+RUN $ENV_PIP_BIN install -U pip
+RUN $ENV_PIP_BIN install -r requirements.txt
 
 # ohmyzsh
-ARG zshconf_fn=.zshrc
+ENV ZSHCONF_FN=.zshrc
 USER root
 RUN apt install -y zsh wget nano vim tmux htop
-RUN chsh $user -s /bin/zsh
+RUN chsh $USER -s /bin/zsh
 
 ENV TERM xterm
-USER $user
-WORKDIR $home
+USER $USER
+WORKDIR $HOME
 # run the installation script
 RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
-RUN echo ". $shell_env_fp" >> $home/$zshconf_fn
-RUN sed -i -e 's/plugins=(git)/plugins=(git python django docker nmap pip postgres rsync sudo tmux systemd)/g' $home/$zshconf_fn
-RUN sed -i -e 's/ZSH_THEME="robbyrussell"/ZSH_THEME="bira"/g' $home/$zshconf_fn
-RUN echo "export LANG=en_US.UTF-8" >> $home/$zshconf_fn
-RUN echo "workon $app_name" >> $home/$zshconf_fn
-WORKDIR $app_dir
+RUN echo ". $SHELL_ENV_FP" >> $HOME/$ZSHCONF_FN
+RUN sed -i -e 's/plugins=(git)/plugins=(git python django docker nmap pip postgres rsync sudo tmux systemd)/g' $HOME/$ZSHCONF_FN
+RUN sed -i -e 's/ZSH_THEME="robbyrussell"/ZSH_THEME="ys"/g' $HOME/$ZSHCONF_FN
+RUN echo "export LANG=en_US.UTF-8" >> $HOME/$ZSHCONF_FN
+RUN echo "workon $APP_NAME" >> $HOME/$ZSHCONF_FN
+WORKDIR $APP_DIR
 
 
-ENV VENV_NAME=$app_name
-ENV PYTHON_VERSION=$py_ver
+ENV VENV_NAME=$APP_NAME
 
 # add entrypoint script
 USER root
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh
-USER $user
+USER $USER
 
 ENTRYPOINT ["/bin/zsh", "/entrypoint.sh"]
