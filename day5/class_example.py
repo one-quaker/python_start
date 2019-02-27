@@ -16,7 +16,7 @@ class Mail():
 
     def show_message(self):
         # print(self.get_dict())
-        print('From: {} To: {}\nSubject: {}\nMessage: {}'.format(**))
+        print('From: {to_list} To: {sender}\nSubject: {subject}\nMessage: {message}'.format(**self.get_dict()))
 
 
 mail = Mail(['user1@gmail.com', 'user2@gmail.com'], 'spamer003@gmail.com')
