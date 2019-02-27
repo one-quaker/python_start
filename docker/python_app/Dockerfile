@@ -6,7 +6,7 @@ RUN apt update -y && apt upgrade -y && apt install -y curl
 RUN apt install -y git make build-essential
 RUN apt install -y sudo bash
 RUN apt install -y libev-dev libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl
-
+RUN apt install -y wget nano vim tmux htop
 
 ENV PYTHON_VERSION=3.7.2
 ENV PYENV_VERSION=1.2.9
@@ -60,9 +60,10 @@ RUN $ENV_PIP_BIN install -U pip
 RUN $ENV_PIP_BIN install -r requirements.txt
 
 # ohmyzsh
-ENV ZSHCONF_FN=.zshrc
+ENV ZSH_CONF_FN=.zshrc
+ENV ZSH_CONF_FP=$HOME/$ZSH_CONF_FN
 USER root
-RUN apt install -y zsh wget nano vim tmux htop
+RUN apt install -y zsh
 RUN chsh $USER -s /bin/zsh
 
 ENV TERM xterm
@@ -70,15 +71,13 @@ USER $USER
 WORKDIR $HOME
 # run the installation script
 RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
-RUN echo ". $SHELL_ENV_FP" >> $HOME/$ZSHCONF_FN
-RUN sed -i -e 's/plugins=(git)/plugins=(git python django docker nmap pip postgres rsync sudo tmux systemd)/g' $HOME/$ZSHCONF_FN
-RUN sed -i -e 's/ZSH_THEME="robbyrussell"/ZSH_THEME="ys"/g' $HOME/$ZSHCONF_FN
-RUN echo "export LANG=en_US.UTF-8" >> $HOME/$ZSHCONF_FN
-RUN echo "workon $APP_NAME" >> $HOME/$ZSHCONF_FN
+RUN echo ". $SHELL_ENV_FP" >> $ZSH_CONF_FP
+RUN sed -i -e 's/plugins=(git)/plugins=(git python django docker nmap pip postgres rsync sudo tmux systemd)/g' $ZSH_CONF_FP
+RUN sed -i -e 's/ZSH_THEME="robbyrussell"/ZSH_THEME="ys"/g' $ZSH_CONF_FP
+RUN echo "export LANG=en_US.UTF-8" >> $ZSH_CONF_FP
+RUN echo "workon $APP_NAME" >> $ZSH_CONF_FP
 WORKDIR $APP_DIR
 
-
-ENV VENV_NAME=$APP_NAME
 
 # add entrypoint script
 USER root
