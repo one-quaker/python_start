@@ -1,5 +1,6 @@
 import os
 import json
+from datetime import datetime
 
 
 class Mail():
@@ -15,8 +16,8 @@ class Mail():
         self.config_fn = config_fn
         self.data = self.get_dict()
 
-    def __dict__(self):
-        return self.data
+    def __str__(self):
+        return 'class Mail()\n{}'.format(json.dumps(self.data))
 
     def write_conf(self, data, fp):
         with open(fp, 'w') as f:
@@ -37,10 +38,19 @@ class Mail():
         print(self.show_message())
         print('Email sent!')
 
+    def date2json(self, dt_obj, fmt='%Y-%m-%d %H:%M:%S'):
+        return dt_obj.strftime(fmt)
+
     def save_config(self):
         if self.debug:
             print(f'Data saved to \"{self.config_fn}\"')
+        self.data.update(
+            dict(
+                date_ts=self.date2json(datetime.now())
+            )
+        )
         self.write_conf(self.data, self.config_fn)
+        self.write_conf(dict(host=self.host, port=self.port), 'server.json')
 
 
 mail = Mail(['user1@gmail.com', 'user2@gmail.com'], debug=True, sender='spamer003@gmail.com')
