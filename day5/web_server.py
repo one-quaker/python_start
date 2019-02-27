@@ -13,11 +13,13 @@ import logging
 
 
 parser = argparse.ArgumentParser(description='Web-server')
+parser.add_argument('-H', '--host', type=str, default='0.0.0.0')
+parser.add_argument('-P', '--port', type=int, default=8000)
 parser.add_argument('-D', '--debug', action='store_true', default=False)
 ARG = parser.parse_args()
 
 
-API_HOST, API_PORT = ('0.0.0.0', 8050)
+WEB_HOST, WEB_PORT = ARG.host, ARG.port
 LOG_TPL = '[%(levelname)s] %(message)s'
 LOG_LEVEL = logging.DEBUG if ARG.debug else logging.INFO
 logging.basicConfig(format=LOG_TPL, level=LOG_LEVEL)
@@ -84,8 +86,8 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 
 def run_webserver():
     log.info('Starting server ...')
-    log.info('Server listening on port {}:{} ...'.format(API_HOST, API_PORT))
-    httpd = ThreadedHTTPServer((API_HOST, API_PORT), HttpRequestHandler)
+    log.info('Server listening on port {}:{} ...'.format(WEB_HOST, WEB_PORT))
+    httpd = ThreadedHTTPServer((WEB_HOST, WEB_PORT), HttpRequestHandler)
     httpd.serve_forever()
 
 
