@@ -1,6 +1,6 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
-import datetime
+from datetime import datetime
 import time
 import argparse
 import json
@@ -17,6 +17,13 @@ parser.add_argument('-H', '--host', type=str, default='0.0.0.0')
 parser.add_argument('-P', '--port', type=int, default=8000)
 parser.add_argument('-D', '--debug', action='store_true', default=False)
 ARG = parser.parse_args()
+
+
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+DATA = dict(result=list())
+DATA_FP = os.path.join(ROOT_DIR, 'data.json')
 
 
 WEB_HOST, WEB_PORT = ARG.host, ARG.port
@@ -41,16 +48,15 @@ def read_conf(fp):
     return data
 
 
-DATA = list()
-DATA_FN = 'data.json'
+def get_ts():
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 
-if any((os.path.isfile(DATA_FN), not DATA)):
+if not os.path.isfile(DATA_FP):
     write_conf([
         dict(first_name='John', last_name='Doe', salary=4000),
         dict(first_name='Jane', last_name='Doe', salary=5000),
-    ], DATA_FN)
-DATA = read_conf(DATA_FN)
+    ], DATA_FP)
 
 
 class HttpRequestHandler(BaseHTTPRequestHandler):
@@ -75,6 +81,9 @@ class HttpRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == '/api/v1':
+            DATA.update(dict(
+                result=sorted(DATA.get('result'), key=lambda k: k['id']),
+            ))
             self._send_json(DATA)
         else:
             self._send_html(200, '<h1>It works!</h1>')
@@ -91,4 +100,21 @@ def run_webserver():
     httpd.serve_forever()
 
 
-run_webserver()
+def update_data():
+    while True:
+        _data = read_conf(DATA_FP)
+        for person in _data:
+            if person not in DATA.get('result'):
+                DATA['result'].append(person)
+                DATA.update(dict(ts=get_ts()))
+        for idx, i in enumerate(DATA.get('result')):
+            if i not in _data:
+                DATA['result'].pop(idx)
+        time.sleep(5)
+
+
+t1 = threading.Thread(target=run_webserver)
+t1.start()
+
+t2 = threading.Thread(target=update_data)
+t2.start()
