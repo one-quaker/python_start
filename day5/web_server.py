@@ -54,8 +54,8 @@ def get_ts():
 
 if not os.path.isfile(DATA_FP):
     write_conf([
-        dict(first_name='John', last_name='Doe', salary=4000),
-        dict(first_name='Jane', last_name='Doe', salary=5000),
+        dict(id=0, first_name='John', last_name='Doe', salary=4000),
+        dict(id=1, first_name='Jane', last_name='Doe', salary=5000),
     ], DATA_FP)
 
 
