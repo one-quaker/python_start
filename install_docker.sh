@@ -5,6 +5,8 @@ USER=`whoami`
 DOCKER_COMPOSE_VERSION=1.23.2
 UBUNTU_VERSION=`lsb_release -cs`
 
+# install
+# sh -c "$(wget https://raw.githubusercontent.com/one-quaker/python_start/master/install_docker.sh -O -)"
 
 sudo apt update
 sudo apt install apt-transport-https ca-certificates curl software-properties-common
