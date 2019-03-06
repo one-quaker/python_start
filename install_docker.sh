@@ -16,3 +16,11 @@ sudo usermod -aG docker $USER
 curl -L https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-`uname -s`-`uname -m` -o /tmp/docker-compose
 sudo mv -v /tmp/docker-compose /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
+
+
+# Docker install package for mac/windows
+# mac
+# https://download.docker.com/mac/stable/Docker.dmg
+
+# windows
+# https://download.docker.com/win/stable/Docker%20for%20Windows%20Installer.exe
