@@ -27,6 +27,7 @@ DATA_FP = os.path.join(ROOT_DIR, 'data.json')
 
 
 WEB_HOST, WEB_PORT = ARG.host, ARG.port
+DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 LOG_TPL = '[%(levelname)s] %(message)s'
 LOG_LEVEL = logging.DEBUG if ARG.debug else logging.INFO
 logging.basicConfig(format=LOG_TPL, level=LOG_LEVEL)
@@ -49,7 +50,7 @@ def read_conf(fp):
 
 
 def get_ts():
-    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    return datetime.now().strftime(DATE_FORMAT)
 
 
 if not os.path.isfile(DATA_FP):
@@ -110,7 +111,7 @@ def update_data():
         for idx, i in enumerate(DATA.get('result')):
             if i not in _data:
                 DATA['result'].pop(idx)
-        time.sleep(5)
+        time.sleep(2)
 
 
 t1 = threading.Thread(target=run_webserver)
