@@ -13,6 +13,8 @@ RESULT_FP = os.path.join(ROOT_DIR, 'result.json')
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument('-S', '--update-script', type=str, default='spider_donationalert.py')
+parser.add_argument('-U', '--update', action='store_true', default=False)
 parser.add_argument('-D', '--debug', action='store_true', default=False)
 ARG = parser.parse_args()
 
@@ -46,6 +48,16 @@ def donate2usd(*arg, **kw):
     )
     amount = kw['amount'].replace(',', '.')
     return float(amount) / rate[kw['currency']]
+
+
+def update_data(fp):
+    cmd = '{} {}'.format(sys.executable, fp)
+    log.info(cmd)
+    return os.popen(cmd).read()
+
+
+if ARG.update:
+    update_data(os.path.join(ROOT_DIR, ARG.update_script))
 
 
 DATA = read_conf(RESULT_FP)
