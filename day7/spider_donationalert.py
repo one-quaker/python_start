@@ -15,6 +15,7 @@ BASE_URL = 'https://www.donationalerts.com'
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 CONF_FP = os.path.join(ROOT_DIR, 'conf.json')
 RESULT_FP = os.path.join(ROOT_DIR, 'result.json')
+TOKEN_KEY = 'TOKEN'
 
 
 def date2json(d, fmt=DATE_FORMAT):
@@ -39,13 +40,18 @@ def write_conf(data, fp):
 
 
 if any((not os.path.isfile(CONF_FP), not read_conf(CONF_FP))):
-    write_conf(dict(
-        TOKEN='token_here', LIMIT=100,
+    data = dict(
+        LIMIT=100,
         USER_AGENT='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:65.0) Gecko/20100101 Firefox/65.0',
-    ), CONF_FP)
+    )
+    data.update({TOKEN_KEY: 'token_here', })
+    write_conf(data, CONF_FP)
 
 
 CONF = read_conf(CONF_FP)
+if 'token' in CONF.get(TOKEN_KEY):
+    print(f'Default value found\nPlease edit \"{TOKEN_KEY}\" in {CONF_FP}')
+    sys.exit(1)
 
 
 class WebSpider(scrapy.Spider):

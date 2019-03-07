@@ -53,7 +53,9 @@ def donate2usd(*arg, **kw):
 def update_data(fp):
     cmd = '{} {}'.format(sys.executable, fp)
     log.info(cmd)
-    return os.popen(cmd).read()
+    out = os.popen(cmd).read()
+    print(out)
+    return out
 
 
 if ARG.update:
