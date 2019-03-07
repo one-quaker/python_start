@@ -69,8 +69,8 @@ for i in donator_list:
 
 
 if ARG.debug:
-    print(result)
-    print(donator_list)
+    pprint(result)
+    pprint(donator_list)
 
 
 print('Subscriber list:\n-----------------\n{}'.format('\n'.join(subscriber_list)))

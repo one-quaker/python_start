@@ -91,7 +91,8 @@ class WebSpider(scrapy.Spider):
             except Exception as e:
                 print(e)
         self.alert_key_idx += 1
-        self.save_data()
+        if DATA_KEY == self.alert_key_list[-1]:
+            self.save_data()
 
     def save_data(self):
         self.ts = date2json(datetime.datetime.now())
