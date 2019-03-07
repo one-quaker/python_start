@@ -6,6 +6,7 @@ import random
 from pprint import pprint
 
 import scrapy
+from scrapy.crawler import CrawlerProcess
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -44,11 +45,13 @@ if any((not os.path.isfile(CONF_FP), not read_conf(CONF_FP))):
     ), CONF_FP)
 
 
+CONF = read_conf(CONF_FP)
+
+
 class WebSpider(scrapy.Spider):
     name = 'spider'
-    conf = read_conf(CONF_FP)
+    conf = CONF
     download_delay = random.randint(15, 60) / 10
-    user_agent = conf.get('USER_AGENT')
     data = list()
     url_tpl = '{url}/widget/lastdonations?alert_type={alert_type}&limit={LIMIT}&token={TOKEN}'
     alert_key_list = ('donator', 'subscriber')
@@ -101,4 +104,9 @@ class WebSpider(scrapy.Spider):
         pprint(read_conf(RESULT_FP))
 
 
-print(f'Run: scrapy runspider {sys.argv[0]}')
+process = CrawlerProcess({
+    'USER_AGENT': CONF.get('USER_AGENT'),
+})
+
+process.crawl(WebSpider)
+process.start() # the script will block here until the crawling is finished
