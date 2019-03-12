@@ -24,6 +24,9 @@ services:
         environment:
             - DB_HOST=db
             - DB_PORT=5432
+            - DB_TYPE=postgresql
+            - DEBUG=1
+            # - ALLOWED_HOSTS=* localhost
         depends_on:
             - db
 
