@@ -49,7 +49,7 @@ RUN echo ". $SHELL_ENV_FP" >> $HOME/.bashrc
 RUN $PYENV_BIN install $PYTHON_VERSION
 RUN $PYENV_BIN virtualenv $PYTHON_VERSION $APP_NAME
 
-user root
+USER root
 RUN mkdir $APP_DIR
 RUN chown $USER:$USER -R $APP_DIR
 
