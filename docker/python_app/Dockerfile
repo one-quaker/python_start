@@ -83,6 +83,7 @@ WORKDIR $APP_DIR
 USER root
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh
+RUN apt -y install postgresql-client iputils-ping telnet
 USER $USER
 
 ENTRYPOINT ["/bin/zsh", "/entrypoint.sh"]

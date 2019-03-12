@@ -1,18 +1,5 @@
-# docker
-start_docker:
-	docker-compose up -d
-	docker exec -it python_app /bin/zsh
+RUN=$(ENV_BIN_ROOT)/python manage.py
 
-stop_docker:
-	docker-compose down
-
-rebuild_docker: stop_docker
-	docker-compose up --force-recreate --build -d
-	docker exec -it python_app /bin/zsh
-
-
-# django
-RUN=python manage.py
 run:
 	$(RUN) runserver 0.0.0.0:8000
 
