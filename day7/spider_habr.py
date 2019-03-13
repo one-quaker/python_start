@@ -71,20 +71,30 @@ class WebSpider(scrapy.Spider):
         POST_BASE = 'div.post__body'
         URL_SELECTOR = f'{POST_BASE} a.post__habracut-btn'
         IMG_SELECTOR = f'{POST_BASE} div.post__text img'
+        TEXT_SELECTOR = f'{POST_BASE} div.post__text'
+        RATING_SELECTOR = 'footer.post__footer li.post-stats__item_voting-wjt span.js-score ::text'
 
         for i in response.css(SET_SELECTOR):
             title = i.css(TITLE_SELECTOR).extract_first()
             url = i.css(URL_SELECTOR).attrib['href']
             img = i.css(IMG_SELECTOR).attrib.get('src', '')
+            text = i.css(TEXT_SELECTOR).extract_first()
+            rating = i.css(RATING_SELECTOR).extract_first()
             try:
                 d = dict(
                     title=title,
                     url=url,
                     cover=img,
+                    text=text,
+                    rating=rating,
                 )
                 self.data.append(d)
             except Exception as e:
                 print(e)
+
+            if img:
+                out = os.popen(f'wget -c {img} -P {IMG_ROOT}').read()
+                print(out)
 
         self.save_data()
 
