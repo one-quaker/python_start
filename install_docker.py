@@ -24,7 +24,7 @@ def install_docker():
     cmd_list = (
         'sudo apt update -y',
         r'sudo apt purge -y docker\*',
-        'sudo apt install -y apt-transport-https ca-certificates curl software-properties-common',
+        'sudo apt install -y apt-transport-https ca-certificates make wget curl software-properties-common',
         'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -',
         'echo \"deb [arch=amd64] https://download.docker.com/linux/ubuntu {} stable\" | sudo tee /etc/apt/sources.list.d/docker.list'.format(UBUNTU_VERSION),
         'sudo apt update -y',
