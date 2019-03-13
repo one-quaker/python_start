@@ -14,7 +14,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_URL = 'https://habr.com/{}/'
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 CONF_FP = os.path.join(ROOT_DIR, 'conf_habr.json')
-RESULT_FP = os.path.join(ROOT_DIR, 'result.json')
+RESULT_FP = os.path.join(ROOT_DIR, 'result_habr.json')
 
 
 def date2json(d, fmt=DATE_FORMAT):
