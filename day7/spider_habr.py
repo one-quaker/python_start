@@ -61,15 +61,17 @@ class WebSpider(scrapy.Spider):
     print(64 * '-', download_delay)
 
     def parse(self, response):
-        SET_SELECTOR = 'div.posts_list ul.content-list article h2.post__title'
-        TITLE_SELECTOR = 'a ::text'
+        SET_SELECTOR = 'div.posts_list ul.content-list article.post'
+        TITLE_SELECTOR = 'h2.post__title a ::text'
+        URL_SELECTOR = 'div.post__body a.post__habracut-btn'
 
         for i in response.css(SET_SELECTOR):
             title = i.css(TITLE_SELECTOR).extract_first()
-            print(title)
+            url = i.css(URL_SELECTOR).attrib['href']
             try:
                 d = dict(
                     title=title,
+                    url=url,
                 )
                 self.data.append(d)
             except Exception as e:
