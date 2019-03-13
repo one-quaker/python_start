@@ -70,18 +70,22 @@ class WebSpider(scrapy.Spider):
     )
     print(64 * '-', download_delay)
 
+    def extract_strip(self, data):
+        return ';'.join([x.strip() for x in data if x.strip()])
+
     def parse(self, response):
         SET_SELECTOR = 'div.event-container.b-last-events-widget__list.s-last-events-container div.b-last-events-widget__item--inner'
         USER_BASE = '.b-last-events-widget__item--title'
         USER_SELECTOR = f'{USER_BASE} ::text'
         NAME_SELECTOR = f'{USER_BASE} span._name ::text'
         SUM_SELECTOR = f'{USER_BASE} span._sum ::text'
+        MSG_SELECTOR = 'div.message-container ::text'
 
         DATA_KEY = self.alert_key_list[self.alert_key_idx]
 
         for i in response.css(SET_SELECTOR):
             try:
-                raw_msg = ';'.join([x.strip() for x in i.css(USER_SELECTOR).extract() if x.strip()])
+                raw_msg = self.extract_strip(i.css(USER_SELECTOR).extract())
                 donation = i.css(SUM_SELECTOR).extract_first()
                 d = dict(
                     raw_msg=raw_msg,
@@ -93,8 +97,12 @@ class WebSpider(scrapy.Spider):
                 )
                 if donation:
                     amount, currency = donation.split(' ')
+                    message = self.extract_strip(i.css(MSG_SELECTOR).extract())
                     d.update(
-                        dict(donation={'amount': amount, 'currency': currency})
+                        dict(donation={
+                            'amount': amount, 'currency': currency,
+                            'message': message,
+                        })
                     )
                 self.data.append(d)
             except Exception as e:
