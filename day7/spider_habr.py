@@ -46,6 +46,11 @@ if any((not os.path.isfile(CONF_FP), not read_conf(CONF_FP))):
     write_conf(data, CONF_FP)
 
 
+IMG_ROOT = os.path.join(ROOT_DIR, 'img')
+if not os.path.isdir(IMG_ROOT):
+    os.mkdir(IMG_ROOT)
+
+
 CONF = read_conf(CONF_FP)
 
 
@@ -63,15 +68,19 @@ class WebSpider(scrapy.Spider):
     def parse(self, response):
         SET_SELECTOR = 'div.posts_list ul.content-list article.post'
         TITLE_SELECTOR = 'h2.post__title a ::text'
-        URL_SELECTOR = 'div.post__body a.post__habracut-btn'
+        POST_BASE = 'div.post__body'
+        URL_SELECTOR = f'{POST_BASE} a.post__habracut-btn'
+        IMG_SELECTOR = f'{POST_BASE} div.post__text img'
 
         for i in response.css(SET_SELECTOR):
             title = i.css(TITLE_SELECTOR).extract_first()
             url = i.css(URL_SELECTOR).attrib['href']
+            img = i.css(IMG_SELECTOR).attrib.get('src', '')
             try:
                 d = dict(
                     title=title,
                     url=url,
+                    cover=img,
                 )
                 self.data.append(d)
             except Exception as e:
