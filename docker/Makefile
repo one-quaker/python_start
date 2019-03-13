@@ -6,9 +6,11 @@ start_docker:
 stop_docker:
 	docker-compose down
 
-rebuild_docker: stop_docker
+rebuild_docker:
 	docker-compose up --force-recreate --build -d
 	docker exec -it python_app /bin/zsh
+
+force_rebuild_docker: stop_docker rebuild_docker
 
 
 # django
