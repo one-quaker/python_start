@@ -10,4 +10,4 @@ RUN_FP=/tmp/$FN
 
 wget "https://raw.githubusercontent.com/one-quaker/python_start/master/$FN" -O $RUN_FP
 python $RUN_FP
-rm -v $RUN_FP
+rm $RUN_FP
