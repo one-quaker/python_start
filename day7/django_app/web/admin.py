@@ -1,18 +1,19 @@
 from django.contrib import admin
-from .models import Post, TwitchUser, TwitchAction, Donation
+from .models import Post, TwitchUser, Subscribe, Donation, DonationAlertEvent
 
 
-class TwitchActionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'donation', 'subscribe', 'alert_id', 'alert_type', 'alert_ts')
-    list_filter = ('user', 'donation', 'subscribe')
+class SubscribeAdmin(admin.ModelAdmin):
+    list_display = ('user', 'alert_ts')
+    list_filter = ('user', 'alert_ts')
 
 
 class DonationAdmin(admin.ModelAdmin):
-    list_display = ('amount', 'currency', 'message', 'alert_ts')
-    list_filter = ('amount', 'currency')
+    list_display = ('user', 'amount', 'currency', 'amount_usd', 'message', 'alert_ts', 'source', 'alert_id')
+    list_filter = ('amount', 'currency', 'source', 'alert_id')
 
 
 admin.site.register(Post)
 admin.site.register(TwitchUser)
-admin.site.register(TwitchAction, TwitchActionAdmin)
+admin.site.register(Subscribe, SubscribeAdmin)
 admin.site.register(Donation, DonationAdmin)
+admin.site.register(DonationAlertEvent)

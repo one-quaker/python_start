@@ -12,7 +12,7 @@ from django.db.utils import IntegrityError
 django.setup()
 
 
-from web.models import TwitchUser, TwitchAction, Donation
+from web.models import TwitchUser, Subscribe, Donation, DonationAlertEvent
 
 
 def read_conf(fp):
@@ -30,59 +30,69 @@ DATA = read_conf(sys.argv[1])
 # pprint(DATA)
 
 
-for i in DATA.get('result', []):
-    name = i.get('user_name')
-    donation = i.get('donation', {})
-    subscriber = i.get('subscriber')
-    alert_type = i.get('alert_type')
-    alert_ts = i.get('alert_ts')
-    alert_id = int(i.get('alert_id'))
-
-    try:
-        print('\nuser')
-        db_user = TwitchUser()
-        db_user.name = name
-        db_user.save()
-    except IntegrityError:
-        print(f'\"{name}\", skip...')
+def clear_db():
+    # TwitchUser.objects.all().delete()
+    DonationAlertEvent.objects.all().delete()
+    # Donation.objects.all().delete()
+    Donation.objects.filter(source=Donation.DALERT).delete()
+    Subscribe.objects.all().delete()
 
 
-    print('\naction')
-    _user = TwitchUser.objects.filter(name=name)
-    try:
-        db_action = TwitchAction()
-        db_action.alert_id = alert_id
-        db_action.alert_type = int(alert_type)
-        db_action.alert_ts = datetime.strptime(alert_ts, DATE_FORMAT)
+def load_data():
+    for i in DATA.get('result', []):
+        name = i.get('user_name')
+        donation = i.get('donation', {})
+        subscriber = i.get('subscriber')
+        alert_type = i.get('alert_type')
+        alert_ts = i.get('alert_ts')
+        alert_id = int(i.get('alert_id'))
 
-        if alert_type == '6':
-            db_action.subscribe = True
-        else:
-            db_action.subscribe = False
-
-        if _user:
-            db_action.user = _user[0]
-        db_action.save()
-    except IntegrityError:
-        print(f'\"{name}\", skip...')
-
-    if alert_type == '1':
         try:
-            print('\ndonation')
-            db_donation = Donation()
-            db_donation.amount = donation['amount'].replace(',', '.')
-            db_donation.currency = donation['currency']
-            db_donation.message = donation['message']
-            db_donation.alert_id = alert_id
-            db_donation.alert_ts = datetime.strptime(alert_ts, DATE_FORMAT)
-            db_donation.save()
+            print('\ndonation raw')
+            db_devent = DonationAlertEvent()
+            db_devent.alert_id = alert_id
+            db_devent.alert_ts = datetime.strptime(alert_ts, DATE_FORMAT)
+            db_devent.raw_data = i
+            db_devent.save()
         except IntegrityError:
-            print('\"{name} {amount} {message}\", skip...'.format(name=name, **donation))
+            print(f'\"{name}\", skip...')
+
+        try:
+            print('\nuser')
+            db_user = TwitchUser()
+            db_user.name = name
+            db_user.save()
+        except IntegrityError:
+            print(f'\"{name}\", skip...')
+
+        _user = TwitchUser.objects.filter(name=name)
+        if alert_type == '6':
+            print('\nsubscribe')
+            try:
+                db_sub = Subscribe()
+                db_sub.alert_ts = datetime.strptime(alert_ts, DATE_FORMAT)
+                db_sub.user = _user[0]
+                db_sub.save()
+            except IntegrityError:
+                print(f'\"{name}\", skip...')
+
+        _donation = Donation.objects.filter(alert_id=alert_id)
+        if alert_type == '1' and not _donation:
+            try:
+                print('\ndonation')
+                db_donation = Donation()
+                db_donation.amount = donation['amount'].replace(',', '.')
+                db_donation.currency = donation['currency']
+                db_donation.message = donation['message']
+                db_donation.source = Donation.DALERT
+                if _user:
+                    db_donation.user = _user[0]
+                db_donation.alert_id = alert_id
+                db_donation.alert_ts = datetime.strptime(alert_ts, DATE_FORMAT)
+                db_donation.save()
+            except IntegrityError:
+                print('\"{name} {amount} {message}\", skip...'.format(name=name, **donation))
 
 
-    _action = TwitchAction.objects.filter(alert_id=alert_id)
-    _donation = Donation.objects.filter(alert_id=alert_id)
-    if _action and _donation:
-        _db_action = _action[0]
-        _db_action.donation = _donation[0]
-        _db_action.save()
+# clear_db()
+load_data()

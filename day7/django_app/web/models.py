@@ -1,5 +1,8 @@
-import datetime
+from datetime import datetime
 from django.db import models
+from django.contrib.postgres.fields import JSONField
+from django.dispatch import receiver
+from django.db.models.signals import pre_save, post_save, post_delete
 
 
 class CreatedMixin(models.Model):
@@ -25,21 +28,6 @@ class TwitchUser(models.Model):
         return self.name
 
 
-class TwitchAction(models.Model):
-    user = models.ForeignKey('TwitchUser', models.SET_NULL, null=True, blank=True)
-    donation = models.ForeignKey('Donation', models.SET_NULL, null=True, blank=True)
-    subscribe = models.BooleanField()
-    alert_type = models.PositiveIntegerField()
-    alert_id = models.PositiveIntegerField(unique=True)
-    alert_ts = models.DateTimeField()
-
-    def __str__(self):
-        return '{} - {} - {}'.format(self.user, self.subscribe, self.donation)
-
-    class Meta:
-        ordering = ['-alert_ts', ]
-
-
 class Donation(models.Model):
     USD = 'USD'
     EUR = 'EUR'
@@ -57,10 +45,22 @@ class Donation(models.Model):
         (UAH, UAH),
         (BRL, BRL),
     )
+    PRIVAT24 = 'Privat24'
+    MONO = 'Monobank'
+    DALERT = 'DonationAlert'
+    SOURCE_CHOICES = (
+        (PRIVAT24, PRIVAT24),
+        (MONO, MONO),
+        (DALERT, DALERT),
+    )
+
+    user = models.ForeignKey('TwitchUser', models.SET_NULL, null=True, blank=True)
     amount = models.FloatField()
+    amount_usd = models.FloatField(default=0, blank=True)
     currency = models.CharField(max_length=8, choices=CURRENCY_CHOICES)
     message = models.TextField(max_length=1024, blank=True)
-    alert_id = models.PositiveIntegerField(unique=True)
+    source = models.CharField(max_length=16, default=DALERT, choices=SOURCE_CHOICES)
+    alert_id = models.PositiveIntegerField(null=True, blank=True)
     alert_ts = models.DateTimeField()
 
     def __str__(self):
@@ -68,3 +68,29 @@ class Donation(models.Model):
 
     class Meta:
         ordering = ['-alert_ts', ]
+
+
+class Subscribe(models.Model):
+    user = models.OneToOneField('TwitchUser', models.CASCADE)
+    alert_ts = models.DateTimeField()
+
+    class Meta:
+        ordering = ['-alert_ts', ]
+
+
+class DonationAlertEvent(models.Model):
+    alert_id = models.PositiveIntegerField(unique=True)
+    alert_ts = models.DateTimeField()
+    raw_data = JSONField()
+
+    def __str__(self):
+        return '{} {}'.format(self.alert_id, self.raw_data)
+
+    class Meta:
+        ordering = ['-alert_ts', ]
+
+
+@receiver(pre_save, sender=Donation)
+def amount_in_usd(sender, instance, **kwargs):
+    from .helper import donate2usd
+    instance.amount_usd = donate2usd(instance.amount, instance.currency)
