@@ -13,8 +13,9 @@ RESULT_FP = os.path.join(ROOT_DIR, 'result.json')
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-S', '--update-script', type=str, default='spider_donationalert.py')
+parser.add_argument('-C', '--update-script', type=str, default='spider_donationalert.py')
 parser.add_argument('-U', '--update', action='store_true', default=False)
+parser.add_argument('-S', '--save-to-db', action='store_true', default=False)
 parser.add_argument('-D', '--debug', action='store_true', default=False)
 ARG = parser.parse_args()
 
@@ -91,3 +92,11 @@ print('Subscriber list:\n-----------------\n{}'.format('\n'.join(subscriber_list
 print(32 * '=')
 top_donator_total = sorted(top_donator.items(), key=lambda kv: kv[1], reverse=True)
 print('\n'.join(['{}: {}$'.format(x[0], round(x[1], 2)) for x in top_donator_total]))
+
+
+if ARG.save_to_db:
+    fp = os.path.join(ROOT_DIR, 'django_app', 'save2db.py')
+    cmd = '{} {} {}'.format(sys.executable, fp, RESULT_FP)
+    out = os.popen(cmd).read()
+    print(cmd)
+    print(out)

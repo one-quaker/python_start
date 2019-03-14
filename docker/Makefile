@@ -6,6 +6,11 @@ start_docker:
 stop_docker:
 	docker-compose stop
 
+app_restart:
+	docker-compose stop python_app
+	docker-compose up -d python_app
+	docker exec -it python_app /bin/zsh
+
 down_docker:
 	docker-compose down
 

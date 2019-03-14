@@ -74,8 +74,8 @@ class WebSpider(scrapy.Spider):
         return ';'.join([x.strip() for x in data if x.strip()])
 
     def parse(self, response):
-        SET_SELECTOR = 'div.event-container.b-last-events-widget__list.s-last-events-container div.b-last-events-widget__item--inner'
-        USER_BASE = '.b-last-events-widget__item--title'
+        SET_SELECTOR = 'div.scroll-container div.event-container div.event'
+        USER_BASE = 'div.b-last-events-widget__item--inner .b-last-events-widget__item--title'
         USER_SELECTOR = f'{USER_BASE} ::text'
         NAME_SELECTOR = f'{USER_BASE} span._name ::text'
         SUM_SELECTOR = f'{USER_BASE} span._sum ::text'
@@ -88,6 +88,9 @@ class WebSpider(scrapy.Spider):
                 raw_msg = self.extract_strip(i.css(USER_SELECTOR).extract())
                 donation = i.css(SUM_SELECTOR).extract_first()
                 d = dict(
+                    alert_id=i.attrib.get('data-alert_id'),
+                    alert_type=i.attrib.get('data-alert_type'),
+                    alert_ts=i.css('input#date_created').attrib['value'],
                     raw_msg=raw_msg,
                     user_name=i.css(NAME_SELECTOR).extract_first(),
                     donation=dict(),
