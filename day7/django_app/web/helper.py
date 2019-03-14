@@ -7,11 +7,17 @@ def donate2usd(amount, currency, upd_rate={}):
     rate = dict(
         RUB=66,
         UAH=27,
+        EUR=1.13,
         USD=1,
     )
     if upd_rate:
         rate.update(upd_rate)
-    return amount / rate[currency]
+    if currency == 'EUR': # rate bicycle
+        return amount * rate.get(currency, 0)
+    try:
+        return amount / rate.get(currency, 0)
+    except ZeroDivisionError:
+        return 0
 
 
 def top_donation_list():

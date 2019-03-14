@@ -33,7 +33,6 @@ DATA = read_conf(sys.argv[1])
 def clear_db():
     # TwitchUser.objects.all().delete()
     DonationAlertEvent.objects.all().delete()
-    # Donation.objects.all().delete()
     Donation.objects.filter(source=Donation.DALERT).delete()
     Subscribe.objects.all().delete()
 
