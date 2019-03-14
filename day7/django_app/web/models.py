@@ -69,6 +69,11 @@ class Donation(models.Model):
     class Meta:
         ordering = ['-alert_ts', ]
 
+    @staticmethod
+    def get_top():
+        from .helper import top_donation_list
+        return top_donation_list()
+
 
 class Subscribe(models.Model):
     user = models.OneToOneField('TwitchUser', models.CASCADE)
