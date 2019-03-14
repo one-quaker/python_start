@@ -25,7 +25,7 @@ SECRET_KEY = '0l6y-7w@9s8puf)bp164371j7cwcsb@g%32j1v(-y05iretyf2'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.environ.get('DEBUG') else False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', ]
 if os.environ.get('ALLOWED_HOSTS'):
     ALLOWED_HOSTS += os.environ.get('ALLOWED_HOSTS').split(' ')
 
@@ -59,7 +59,7 @@ ROOT_URLCONF = 'django_app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates', ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -136,4 +136,16 @@ if os.environ.get('DB_TYPE') == 'postgresql':
             'HOST': os.environ['DB_HOST'],
             'PORT': os.environ['DB_PORT'],
         }
+    }
+
+
+if DEBUG:
+    def show_toolbar(request):
+        return True
+
+    INSTALLED_APPS += ['debug_toolbar', ]
+    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
+
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': show_toolbar,
     }
