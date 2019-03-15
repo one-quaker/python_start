@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import JSONField
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save, post_delete
@@ -55,7 +56,7 @@ class Donation(models.Model):
     )
 
     user = models.ForeignKey('TwitchUser', models.SET_NULL, null=True, blank=True)
-    amount = models.FloatField()
+    amount = models.FloatField(validators=[MinValueValidator(0.1), ], )
     amount_usd = models.FloatField(default=0, blank=True)
     currency = models.CharField(max_length=8, choices=CURRENCY_CHOICES)
     message = models.TextField(max_length=1024, blank=True)
