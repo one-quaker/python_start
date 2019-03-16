@@ -22,8 +22,4 @@ def donate2usd(amount, currency, upd_rate={}):
 
 def top_donation_list():
     from django.db.models import Sum, Max
-    from collections import defaultdict
-    result = defaultdict(float)
-    for i in Donation.objects.select_related('user').annotate(usd_sum=Sum('amount_usd')).order_by('-usd_sum'):
-        result[i.user.name] += i.amount_usd
-    return result
+    return Donation.objects.select_related('user').values('user__name').annotate(usd_sum=Sum('amount_usd')).order_by('-usd_sum')

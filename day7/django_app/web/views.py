@@ -15,7 +15,7 @@ class TopDonationView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['top_donator_list'] = Donation.get_top().items()
+        ctx['top_donator_list'] = Donation.get_top()
         return ctx
 
 
@@ -27,7 +27,5 @@ class ApiTopList(generic.View):
         return d
 
     def get(self, request):
-        raw_list = list(Donation.get_top().items())
-        top_list = sorted(raw_list, key=lambda kv: kv[1], reverse=True)
-        data = dict(top_list=top_list)
+        data = dict(top_list=list(Donation.get_top()))
         return JsonResponse(data)
