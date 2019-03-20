@@ -1,22 +1,29 @@
-# docker
+APP_NAME=python_app
+
 start_docker:
 	docker-compose up -d
-	docker exec -it python_app /bin/zsh
 
 stop_docker:
 	docker-compose stop
 
 app_restart:
-	docker-compose stop python_app
-	docker-compose up -d python_app
-	docker exec -it python_app /bin/zsh
+	docker-compose stop $(APP_NAME)
+	docker-compose up -d $(APP_NAME)
+
+app_logs:
+	docker-compose logs -f web_app
+
+app_attach:
+	docker-compose exec $(APP_NAME) /bin/zsh
+
+all_logs:
+	docker-compose logs -f
 
 down_docker:
 	docker-compose down
 
 rebuild_docker:
 	docker-compose up --force-recreate --build -d
-	docker exec -it python_app /bin/zsh
 
 force_rebuild_docker: down_docker rebuild_docker
 
