@@ -79,6 +79,8 @@ class WebSpider(scrapy.Spider):
         COMMENT_SELECTOR = f'{POST_FOOTER_BASE} span.post-stats__comments-count ::text'
         VIEW_SELECTOR = f'{POST_FOOTER_BASE} span.post-stats__views-count ::text'
 
+        TAG_SELECTOR = 'ul.post__hubs'
+
         for i in response.css(SET_SELECTOR):
             title = i.css(TITLE_SELECTOR).extract_first()
             url = i.css(URL_SELECTOR).attrib['href']
@@ -89,6 +91,7 @@ class WebSpider(scrapy.Spider):
             comment = int(i.css(COMMENT_SELECTOR).extract_first())
             raw_view = i.css(VIEW_SELECTOR).extract_first()
             view = int(float(raw_view.replace('k', '').replace(',', '.')) * 1000)
+            tag_list = i.css('ul.post__hubs li.inline-list__item a.inline-list__item-link ::text').extract()
 
             try:
                 d = dict(
@@ -100,6 +103,7 @@ class WebSpider(scrapy.Spider):
                     bookmark=bookmark,
                     comment=comment,
                     view=view,
+                    tag_list=tag_list,
                 )
                 self.data.append(d)
             except Exception as e:
