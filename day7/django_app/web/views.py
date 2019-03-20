@@ -3,6 +3,7 @@ from django.views import generic
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.conf import settings
+
 from .models import Post
 
 
