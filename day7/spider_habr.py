@@ -72,14 +72,24 @@ class WebSpider(scrapy.Spider):
         URL_SELECTOR = f'{POST_BASE} a.post__habracut-btn'
         IMG_SELECTOR = f'{POST_BASE} div.post__text img'
         TEXT_SELECTOR = f'{POST_BASE} div.post__text'
-        RATING_SELECTOR = 'footer.post__footer li.post-stats__item_voting-wjt span.js-score ::text'
+
+        POST_FOOTER_BASE = 'footer.post__footer li'
+        RATING_SELECTOR = f'{POST_FOOTER_BASE} span.js-score ::text'
+        BOOKMARK_SELECTOR = f'{POST_FOOTER_BASE} span.bookmark__counter ::text'
+        COMMENT_SELECTOR = f'{POST_FOOTER_BASE} span.post-stats__comments-count ::text'
+        VIEW_SELECTOR = f'{POST_FOOTER_BASE} span.post-stats__views-count ::text'
 
         for i in response.css(SET_SELECTOR):
             title = i.css(TITLE_SELECTOR).extract_first()
             url = i.css(URL_SELECTOR).attrib['href']
             img = i.css(IMG_SELECTOR).attrib.get('src', '')
             text = i.css(TEXT_SELECTOR).extract_first()
-            rating = i.css(RATING_SELECTOR).extract_first()
+            rating = int(i.css(RATING_SELECTOR).extract_first())
+            bookmark = int(i.css(BOOKMARK_SELECTOR).extract_first())
+            comment = int(i.css(COMMENT_SELECTOR).extract_first())
+            raw_view = i.css(VIEW_SELECTOR).extract_first()
+            view = int(float(raw_view.replace('k', '').replace(',', '.')) * 1000)
+
             try:
                 d = dict(
                     title=title,
@@ -87,6 +97,9 @@ class WebSpider(scrapy.Spider):
                     cover=img,
                     text=text,
                     rating=rating,
+                    bookmark=bookmark,
+                    comment=comment,
+                    view=view,
                 )
                 self.data.append(d)
             except Exception as e:
