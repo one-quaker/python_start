@@ -14,8 +14,8 @@ class CreatedMixin(models.Model):
 
 
 class Post(CreatedMixin):
-    title = models.CharField(max_length=64)
-    description = models.TextField(max_length=2048)
+    title = models.CharField(max_length=256)
+    description = models.TextField(max_length=8192)
 
     def __str__(self):
         return self.title
