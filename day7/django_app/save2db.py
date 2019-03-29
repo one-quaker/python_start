@@ -16,7 +16,7 @@ from django.db.utils import IntegrityError
 django.setup()
 
 
-from web.models import Post
+from web.models import Post, Author
 
 
 def read_conf(fp):
@@ -35,7 +35,16 @@ DATA = read_conf(sys.argv[1])
 
 
 for post in DATA['result']:
-    p = Post()
-    p.title = post['title']
-    p.description = post['text']
-    p.save()
+    author_obj, created = Author.objects.get_or_create(
+        nickname=post['author'],
+    )
+
+    try:
+        p = Post(
+            title=post['title'],
+            description=post['text'],
+            author=author_obj,
+        )
+        p.save()
+    except IntegrityError:
+        print('Post already in database, skip...')

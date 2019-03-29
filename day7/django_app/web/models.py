@@ -16,7 +16,17 @@ class CreatedMixin(models.Model):
 class Post(CreatedMixin):
     title = models.CharField(max_length=256)
     description = models.TextField(max_length=8192)
-    # TODO: add new fields for habr posts
+    author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        unique_together = (('title', 'author'), )
+
+
+class Author(models.Model):
+    nickname = models.CharField(max_length=128, unique=True)
+
+    def __str__(self):
+        return self.nickname

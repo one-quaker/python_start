@@ -84,6 +84,7 @@ class WebSpider(scrapy.Spider):
         URL_SELECTOR = f'{POST_BASE} a.post__habracut-btn'
         IMG_SELECTOR = f'{POST_BASE} div.post__text img'
         TEXT_SELECTOR = f'{POST_BASE} div.post__text'
+        AUTHOR_SELECTOR = 'header.post__meta span.user-info__nickname ::text'
 
         POST_FOOTER_BASE = 'footer.post__footer li'
         RATING_SELECTOR = f'{POST_FOOTER_BASE} span.js-score ::text'
@@ -100,6 +101,7 @@ class WebSpider(scrapy.Spider):
             text = i.css(TEXT_SELECTOR).extract_first()
             rating = int(i.css(RATING_SELECTOR).extract_first())
             bookmark = int(i.css(BOOKMARK_SELECTOR).extract_first())
+            author = i.css(AUTHOR_SELECTOR).extract_first()
 
             try:
                 comment = int(i.css(COMMENT_SELECTOR).extract_first())
@@ -121,6 +123,7 @@ class WebSpider(scrapy.Spider):
                     bookmark=bookmark,
                     comment=comment,
                     view=view,
+                    author=author,
                     tag_list=tag_list,
                 )
                 self.data.append(d)
