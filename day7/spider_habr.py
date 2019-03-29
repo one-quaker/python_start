@@ -12,7 +12,7 @@ from scrapy.crawler import CrawlerProcess
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-BASE_URL = 'https://habr.com/{}/'
+BASE_URL = 'https://habr.com/{}/page{}'
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 CONF_FP = os.path.join(ROOT_DIR, 'conf_habr.json')
 RESULT_FP = os.path.join(ROOT_DIR, 'result_habr.json')
@@ -69,12 +69,9 @@ CONF = read_conf(CONF_FP)
 class WebSpider(scrapy.Spider):
     name = 'spider'
     conf = CONF
-    download_delay = random.randint(15, 60) / 10
+    download_delay = random.randint(5, 30) / 10
     data = list()
-    start_urls = (
-        BASE_URL.format('ru'),
-        # BASE_URL.format('en'),
-    )
+    start_urls = [BASE_URL.format('ru', x) for x in range(1, 4)]
     print(64 * '-', download_delay)
 
     def parse(self, response):
@@ -141,6 +138,14 @@ class WebSpider(scrapy.Spider):
         write_conf(result, RESULT_FP)
         pprint(read_conf(RESULT_FP))
 
+        if not ARG.skip_db:
+            cmd = '{} {} {}'.format(sys.executable, SAVE2DB_FP, RESULT_FP)
+            print(cmd)
+            out = os.popen(cmd).read()
+            print(out)
+            print(f'Data saved to database, removing \"{RESULT_FP}\"')
+            os.remove(RESULT_FP)
+
 
 process = CrawlerProcess({
     'USER_AGENT': CONF.get('USER_AGENT'),
@@ -150,10 +155,3 @@ process = CrawlerProcess({
 if ARG.update:
     process.crawl(WebSpider)
     process.start() # the script will block here until the crawling is finished
-
-
-if not ARG.skip_db:
-    cmd = '{} {} {}'.format(sys.executable, SAVE2DB_FP, RESULT_FP)
-    print(cmd)
-    out = os.popen(cmd).read()
-    print(out)
