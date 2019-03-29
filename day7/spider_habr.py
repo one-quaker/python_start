@@ -4,6 +4,7 @@ import os
 import sys
 import random
 import argparse
+import uuid
 from pprint import pprint
 
 import scrapy
@@ -15,7 +16,6 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_URL = 'https://habr.com/{}/page{}'
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 CONF_FP = os.path.join(ROOT_DIR, 'conf_habr.json')
-RESULT_FP = os.path.join(ROOT_DIR, 'result_habr.json')
 SAVE2DB_FP = os.path.join(ROOT_DIR, 'django_app', 'save2db.py')
 
 
@@ -23,6 +23,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-S', '--skip-db', action='store_true', default=False)
 parser.add_argument('-G', '--get-images', action='store_true', default=False)
 parser.add_argument('-U', '--update', action='store_true', default=False)
+parser.add_argument('-R', '--save-result', action='store_true', default=False)
 parser.add_argument('-D', '--debug', action='store_true', default=False)
 
 
@@ -75,6 +76,8 @@ class WebSpider(scrapy.Spider):
     print(64 * '-', download_delay)
 
     def parse(self, response):
+        self.page_url = response.url
+
         SET_SELECTOR = 'div.posts_list ul.content-list article.post'
         TITLE_SELECTOR = 'h2.post__title a ::text'
         POST_BASE = 'div.post__body'
@@ -134,17 +137,19 @@ class WebSpider(scrapy.Spider):
 
     def save_data(self):
         self.ts = date2json(datetime.datetime.now())
-        result = dict(result=self.data, ts=self.ts, ts_fmt=DATE_FORMAT)
-        write_conf(result, RESULT_FP)
-        pprint(read_conf(RESULT_FP))
+        result = dict(result=self.data, ts=self.ts, ts_fmt=DATE_FORMAT, url=self.page_url)
+        self.result_fp = os.path.join(ROOT_DIR, 'result_{}.json'.format(uuid.uuid1()))
+        write_conf(result, self.result_fp)
+        pprint(read_conf(self.result_fp))
 
         if not ARG.skip_db:
-            cmd = '{} {} {}'.format(sys.executable, SAVE2DB_FP, RESULT_FP)
+            cmd = '{} {} {}'.format(sys.executable, SAVE2DB_FP, self.result_fp)
             print(cmd)
             out = os.popen(cmd).read()
             print(out)
-            print(f'Data saved to database, removing \"{RESULT_FP}\"')
-            os.remove(RESULT_FP)
+            if not ARG.save_result:
+                print(f'Data saved to database, removing \"{self.result_fp}\"')
+                os.remove(self.result_fp)
 
 
 process = CrawlerProcess({
