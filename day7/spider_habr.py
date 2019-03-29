@@ -23,7 +23,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-S', '--skip-db', action='store_true', default=False)
 parser.add_argument('-G', '--get-images', action='store_true', default=False)
 parser.add_argument('-U', '--update', action='store_true', default=False)
-parser.add_argument('-R', '--save-result', action='store_true', default=False)
+parser.add_argument('-R', '--save-json-result', action='store_true', default=False)
 parser.add_argument('-D', '--debug', action='store_true', default=False)
 
 
