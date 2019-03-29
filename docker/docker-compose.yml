@@ -6,10 +6,12 @@ services:
         hostname: db
         ports:
             - '5435:5432'
-        volumes:
-            - ./var/lib/postgresql/data:/var/lib/postgresql/data
         env_file:
             - env
+        environment:
+            - PGDATA=/var/lib/postgresql/data
+        volumes:
+            - pgdata:/var/lib/postgresql/data
 
     python_app:
         container_name: python_app
@@ -30,11 +32,6 @@ services:
         depends_on:
             - db
 
-# folder permission bug on windows?
-# volumes:
-#   local_postgres_data: {}
-#
-# postgres:
-#   image: postgres:10.4
-#   volumes:
-#     - local_postgres_data:/var/lib/postgresql/data
+volumes:
+    pgdata:
+        driver: local

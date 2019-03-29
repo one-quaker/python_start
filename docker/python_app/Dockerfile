@@ -27,7 +27,7 @@ ENV ENV_PIP_BIN=$ENV_BIN_ROOT/pip
 ENV SHELL_FN=.shell_pyenv
 ENV SHELL_ENV_FP=$HOME/$SHELL_FN
 
-RUN useradd -m -s /bin/bash $USER
+RUN useradd -m -s /bin/bash -u 5000 -U $USER # important on linux platform, you need to create user for docker with same uid (5000)
 
 RUN echo 'Europe/Kiev' > /etc/timezone
 RUN DEBIAN_FRONTEND=noninteractive apt install -y tzdata
