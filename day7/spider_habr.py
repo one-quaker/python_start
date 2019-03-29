@@ -3,6 +3,7 @@ import datetime
 import os
 import sys
 import random
+import argparse
 from pprint import pprint
 
 import scrapy
@@ -15,6 +16,17 @@ BASE_URL = 'https://habr.com/{}/'
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 CONF_FP = os.path.join(ROOT_DIR, 'conf_habr.json')
 RESULT_FP = os.path.join(ROOT_DIR, 'result_habr.json')
+SAVE2DB_FP = os.path.join(ROOT_DIR, 'django_app', 'save2db.py')
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-S', '--skip-db', action='store_true', default=False)
+parser.add_argument('-G', '--get-images', action='store_true', default=False)
+parser.add_argument('-U', '--update', action='store_true', default=False)
+parser.add_argument('-D', '--debug', action='store_true', default=False)
+
+
+ARG = parser.parse_args()
 
 
 def date2json(d, fmt=DATE_FORMAT):
@@ -115,10 +127,9 @@ class WebSpider(scrapy.Spider):
             except Exception as e:
                 print(e)
 
-            if img:
+            if img and ARG.get_images:
                 out = os.popen(f'wget -c {img} -P {IMG_ROOT}').read()
                 print(out)
-
         self.save_data()
 
     def save_data(self):
@@ -132,5 +143,14 @@ process = CrawlerProcess({
     'USER_AGENT': CONF.get('USER_AGENT'),
 })
 
-process.crawl(WebSpider)
-process.start() # the script will block here until the crawling is finished
+
+if ARG.update:
+    process.crawl(WebSpider)
+    process.start() # the script will block here until the crawling is finished
+
+
+if not ARG.skip_db:
+    cmd = '{} {} {}'.format(sys.executable, SAVE2DB_FP, RESULT_FP)
+    print(cmd)
+    out = os.popen(cmd).read()
+    print(out)
