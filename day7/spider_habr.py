@@ -88,7 +88,13 @@ class WebSpider(scrapy.Spider):
             text = i.css(TEXT_SELECTOR).extract_first()
             rating = int(i.css(RATING_SELECTOR).extract_first())
             bookmark = int(i.css(BOOKMARK_SELECTOR).extract_first())
-            comment = int(i.css(COMMENT_SELECTOR).extract_first())
+
+            try:
+                comment = int(i.css(COMMENT_SELECTOR).extract_first())
+            except:
+                print('Wrong comment count')
+                comment = 0
+
             raw_view = i.css(VIEW_SELECTOR).extract_first()
             view = int(float(raw_view.replace('k', '').replace(',', '.')) * 1000)
             tag_list = i.css('ul.post__hubs li.inline-list__item a.inline-list__item-link ::text').extract()
