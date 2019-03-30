@@ -42,7 +42,8 @@ for post in DATA['result']:
     try:
         p = Post(
             title=post['title'],
-            description=post['text'],
+            description_html=post['html_text'],
+            description_text=post['clean_text'],
             author=author_obj,
         )
         p.save()

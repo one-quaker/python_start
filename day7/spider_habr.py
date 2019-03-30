@@ -51,6 +51,14 @@ def write_conf(data, fp):
         json.dump(data, f, indent=4, separators=(',', ': '), sort_keys=True)
 
 
+def clean_html(raw_html):
+    import re
+    raw_html = '\n'.join([x for x in re.split(r'\r|\n|<br>', raw_html) if x])
+    cleanr = re.compile('<.*?>')
+    cleantext = re.sub(cleanr, '', raw_html)
+    return cleantext
+
+
 if any((not os.path.isfile(CONF_FP), not read_conf(CONF_FP))):
     data = dict(
         LIMIT=100,
@@ -70,7 +78,7 @@ CONF = read_conf(CONF_FP)
 class WebSpider(scrapy.Spider):
     name = 'spider'
     conf = CONF
-    download_delay = random.randint(5, 30) / 10
+    download_delay = random.randint(5, 15) / 10
     data = list()
     start_urls = [BASE_URL.format('ru', x) for x in range(1, 4)]
     print(64 * '-', download_delay)
@@ -118,7 +126,8 @@ class WebSpider(scrapy.Spider):
                     title=title,
                     url=url,
                     cover=img,
-                    text=text,
+                    html_text=text,
+                    clean_text=clean_html(text),
                     rating=rating,
                     bookmark=bookmark,
                     comment=comment,
@@ -147,7 +156,7 @@ class WebSpider(scrapy.Spider):
             print(cmd)
             out = os.popen(cmd).read()
             print(out)
-            if not ARG.save_result:
+            if not ARG.save_json_result:
                 print(f'Data saved to database, removing \"{self.result_fp}\"')
                 os.remove(self.result_fp)
 

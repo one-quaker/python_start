@@ -15,7 +15,8 @@ class CreatedMixin(models.Model):
 
 class Post(CreatedMixin):
     title = models.CharField(max_length=256)
-    description = models.TextField(max_length=8192)
+    description_html = models.TextField(max_length=8192)
+    description_text = models.TextField(max_length=8192, default='')
     author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
