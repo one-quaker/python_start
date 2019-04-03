@@ -39,12 +39,12 @@ for post in DATA['result']:
         nickname=post['author'],
     )
 
+    post.pop('author')
+
     try:
         p = Post(
-            title=post['title'],
-            description_html=post['html_text'],
-            description_text=post['clean_text'],
             author=author_obj,
+            **post,
         )
         p.save()
     except IntegrityError:
