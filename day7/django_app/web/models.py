@@ -17,7 +17,7 @@ class Post(CreatedMixin):
     title = models.CharField(max_length=256)
     description_html = models.TextField(max_length=8192)
     description_text = models.TextField(max_length=8192, default='')
-    author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True)
+    author = models.ForeignKey('Author', related_name='post_list', on_delete=models.SET_NULL, null=True)
     bookmark = models.PositiveIntegerField(default=0)
     comment = models.PositiveIntegerField(default=0)
     rating = models.IntegerField(default=0)
